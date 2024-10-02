@@ -53,65 +53,130 @@ const randY = () => randomInt(gameHeight);
 const randX = () => randomInt(gameWidth);
 
 //===============================================================
-// calcCellId(y, x)
+// switchBuffer()
 //
-// returns: r###-c### which we use as a name for a div.id
+// To make updating the screen easier and not keep track of old
+// positions, etc., we use double buffering.
+//===============================================================
+
+const hoverStyles = [
+    "canMoveTo",
+    "monsterInRange",
+    "monsterOutOfRange",
+    "treasure"
+];
+
+let onScreenBuffer = 0;
+let offScreenBuffer = 1;
+
+//Debug
+offScreenBuffer = 0;
+
+function switchBuffer(buffer = -1) {
+
+    switch (buffer) {
+
+        // If not specified, switch to the other buffer
+        case -1:
+            if (buffer == -1) {
+                let t = onScreenBuffer;
+                onScreenBuffer = offScreenBuffer;
+                offScreenBuffer = t;
+            }
+            break;
+
+        // Switch to buffer 0
+        case 0:
+            onScreenBuffer = 0;
+            offScreenBuffer = 1;
+            break;
+
+        // Switch to buffer 1
+        case 1:
+            onScreenBuffer = 1;
+            offScreenBuffer = 0;
+            break;
+    }
+
+    // Show the onScreen buffer
+    let div = document.getElementById("buffer" + onScreenBuffer);
+    div.style.display = "inline";
+
+    // Hide the offscreen buffer
+    div = document.getElementById("buffer" + offScreenBuffer);
+    div.style.display = "none";
+
+    // Erase the text of the offscreen and hover buffer
+    for (let row = 0; row < gameHeight; row++)
+        for (let col = 0; col < gameWidth; col++) {
+            changeHTMLCellText(buffer, row, col, null);
+
+            // Remove all existing CSS hover styles
+            for (let n = 0; n < hoverStyles.length; n++)
+                removeCssStyleFromCell(offScreenBuffer, y, x, hoverStyles[n]);                
+    }
+}
+
+//===============================================================
+// calcCellId(buffer, y, x)
+//
+// returns: b###-r###-c### which we use as a name for a div.id
 //
 // for example:
 //
-// calcCellAddress(8, 22)
+// calcCellAddress(0, 8, 22)
 //
-// returns `r8-c22`
+// returns `b0-r8-c22`
 //
 // which we use when we create a new <div> to represent a square
 // on the map
 //===============================================================
 
-function calcCellId(Y, X) {
-    return (`r${Y}-c${X}`);
+function calcCellId(buffer, Y, X) {
+    return (`b${buffer}-r${Y}-c${X}`);
 }
 
 //===============================================================
-// getDivByCellAddress(y, x)
+// getDivByCellAddress(buffer, y, x)
 //
-// Given a address(y,x), get the appropriate div with the id
+// Given a address(buffer, y,x), get the appropriate div with the id
 //
 // for example:
 //
-// getDivByCellAddress(2, 3)
+// getDivByCellAddress(0, 2, 3)
 //
-// returns <div id='r2-c3'>
+// returns <div id='b0-r2-c3'>
 //===============================================================
 
-function getDivByCellAddress(Y, X) {
-    return (document.getElementById(calcCellId(Y, X)));
+function getDivByCellAddress(buffer, Y, X) {
+    return (document.getElementById(calcCellId(buffer, Y, X)));
 }
 
 //===============================================================
-// changeHTMLCellText(Y, X, text)
+// changeHTMLCellText(buffer, Y, X, text)
 //
-// Given an address(y, x), change the text of the div with the id
+// Given an address(buffer, y, x), change the text of the div with the id
 //===============================================================
 
-function changeHTMLCellText(Y, X, text) {
-    getDivByCellAddress(Y, X).innerHTML = text;
+function changeHTMLCellText(buffer, Y, X, text) {
+    getDivByCellAddress(buffer, Y, X).innerHTML = text;
 }
 
 //===============================================================
-// Add style of the div with the specified Y/X
+// Add style of the div with the specified b/Y/X
 //===============================================================
 
-function addCssStyleToCell(Y, X, style) {
-    let cell = getDivByCellAddress(Y, X);
+function addCssStyleToCell(buffer, Y, X, style) {
+    let cell = getDivByCellAddress(buffer, Y, X);
     cell.classList.add(style);
 }
 
 //===============================================================
-// Remove style of the div with the specified Y/X
+// Remove style of the div with the specified b/Y/X
 //===============================================================
 
-function removeCssStyleFromCell(Y, X, style) {
-    let cell = getDivByCellAddress(Y, X);
+function removeCssStyleFromCell(buffer, Y, X, style) {
+    let cell = getDivByCellAddress(buffer, Y, X);
     cell.classList.remove(style);
 }
 
@@ -170,14 +235,14 @@ function drawEntityAbsolutely(entity) {
         if (entity.lastSeenY >= 0 && entity.lastSeenX >= 0) {
             // console.log(`Erasing old ship location because it was last drawn at ${lastDrawnShipY} ${lastDrawnShipX}`);
             // console.log(`calling change text with lastDrawnShipY = ${lastDrawnShipY} lastDrawnShipX = ${lastDrawnShipX} ${blank}`);
-            changeHTMLCellText(entity.lastSeenY, entity.lastSeenX, blank.icon);
+            changeHTMLCellText(offScreenBuffer, entity.lastSeenY, entity.lastSeenX, blank.icon);
             // changeHTMLCellText(lastDrawnShipY, lastDrawnShipX, terrainMap[lastDrawnShipY][lastDrawnShipX] + blank);
         };
 
         // Drawing the entity at new spot
         // console.log(`Drawing entity ${entity.name} at ${entity.Y} ${entity.X}`);
 
-        changeHTMLCellText(entity.Y, entity.X, entity.icon);
+        changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, entity.icon);
         entity.lastSeenY = entity.Y;
         entity.lastSeenX = entity.X;
     }
@@ -538,23 +603,23 @@ function entityAttacksEntity(attacker, defender) {
 //=======================================================
 
 // Draw the entity on the board, taking distance from the player into account
-function drawVisibileEntity(entity) {
+function drawVisibleEntity(entity) {
 
     // console.log(`drawing ${entity} = ${entity.name}`)
 
     let sr = playerCharacter().currentSightRange;
-    let e1 = playerCharacter();
-    let e2 = entity;
+    let pc = playerCharacter();
 
-    if (distanceBetweenEntities(e1, e2) <= sr) {
+    // If the entity is in sight range of the player
+    if (distanceBetweenEntities(pc, entity) <= sr) {
 
         // if the entity was visible the last time we drew him, leave him there 
         if (entity.entityVisible) {
             return;
         }
 
-        // Entit just became visible
-        changeHTMLCellText(entity.Y, entity.X, terrainMap[entity.Y][entity.X].icon);
+        // Entity just became visible
+        changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, terrainMap[entity.Y][entity.X].icon);
 
         // console.log(`2. Drawing swimmer at ${lastDrawnSwimmerY} ${lastDrawnSwimmerX}`);
         entity.lastSeenX     = entity.X;
@@ -575,15 +640,17 @@ function drawVisibileEntity(entity) {
         if (entity.entityVisible) {
             // console.log(`3. Erasing old entity location because it was last drawn at ${entity.lastSeenY} ${entity.lastSeenX}`);
             // changeHTMLCellText(lastDrawnSwimmerY, lastDrawnSwimmerX, terrainMap[lastDrawnSwimmerY][lastDrawnSwimmerX] + blank);
-            changeHTMLCellText(entity.lastSeenY, entity.lastSeenX, blank.icon
+            changeHTMLCellText(offScreenBuffer, entity.lastSeenY, entity.lastSeenX, " " // blank.icon
             );
             entity.lastSeenY = entity.Y;
             entity.lastSeenX = entity.X;
             entity.entityVisible = false;
 
-            // Play man spotted
-            cueManLost.currentTime = 0;
-            cueManLost.play();
+            if (musicStarted) {
+                // Play man spotted
+                cueManLost.currentTime = 0;
+                cueManLost.play();
+            }
         }
     }
 }
@@ -591,14 +658,25 @@ function drawVisibileEntity(entity) {
 // Redraw the screen
 function drawAllEntities() {
 
-    // Draw the player
-    drawEntityAbsolutely(playerCharacter());
+    debugger;
+
+    // Draw the game map
+    for (let row = 0; row < gameHeight; row++)
+        for (let col = 0; col < gameWidth; col++)
+            if (terrainMap[row][col] === blank) {
+                blank.X = row;
+                blank.Y = col;
+                drawVisibleEntity(blank);
+            }
 
     // Draw all entities
     for (let i = 1; i < entityList.length; i++) {
         // console.log(`drawing entity[${i}] = ${entityList[i].name}`)
-        drawVisibileEntity(entityList[i]);
+        drawVisibleEntity(entityList[i]);
     }
+
+    // Draw the player
+    drawEntityAbsolutely(playerCharacter());
 }
 
 // math functions
@@ -636,10 +714,10 @@ function updateOnHover() {
         for (let x = 0; x < gameWidth; x++) {
 
             // Remove any existing CSS hover styles
-            removeCssStyleFromCell(y, x, "canMoveTo");
-            removeCssStyleFromCell(y, x, "monsterInRange");
-            removeCssStyleFromCell(y, x, "monsterOutOfRange");
-            removeCssStyleFromCell(y, x, "treasure");
+            removeCssStyleFromCell(onScreenBuffer, y, x, "canMoveTo");
+            removeCssStyleFromCell(onScreenBuffer, y, x, "monsterInRange");
+            removeCssStyleFromCell(onScreenBuffer, y, x, "monsterOutOfRange");
+            removeCssStyleFromCell(onScreenBuffer, y, x, "treasure");
 
             // If square(x,y) is visible to the player
             if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
@@ -653,10 +731,10 @@ function updateOnHover() {
                         // if in range of weapon
                         if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
                             // we can attack it
-                            addCssStyleToCell(y, x, "monsterInRange");
+                            addCssStyleToCell(onScreenBuffer, y, x, "monsterInRange");
                         else
                             // not in range, we can't attack
-                            addCssStyleToCell(y, x, "monsterOutOfRange");
+                            addCssStyleToCell(onScreenBuffer, y, x, "monsterOutOfRange");
                         break;
 
                     // Some kind of treasure
@@ -664,14 +742,14 @@ function updateOnHover() {
                     case 'gold':
                     case 'corpose':
                         // gold is here
-                        addCssStyleToCell(y, x, "treasure");
+                        addCssStyleToCell(onScreenBuffer, y, x, "treasure");
                         break;
 
                     // empty spot
                     default:
                         // If we can walk there... (one square away), add the canMoveTo style
                         if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= 1.5)
-                            addCssStyleToCell(y, x, "canMoveTo");
+                            addCssStyleToCell(onScreenBuffer, y, x, "canMoveTo");
                 }
             }
         }
@@ -681,8 +759,10 @@ function updateOnHover() {
 //=================================================
 // Event handler
 //=================================================
+
 let clickX = -1;
 let clickY = -1;
+let clickB = -1;
 
 function handleClick(event) {
 
@@ -693,22 +773,25 @@ function handleClick(event) {
     // If we got clicked, start the audio engine
     startAudioEngine();
 
-    // Skip events that are useless to us
-    if (event.target.id === `app`)
-        return;
+    // Use regular expression to match the numbers
+    const matched = event.target.id.match(/^b(\d+)-r(\d+)-c(\d+)$/);
 
-    // Skip rows
-    if (event.target.id.substring(0, 3) === `row`)
-        return;
+    // If we matchd, we clicked on a proper cell
+    if (matched) {
 
-    // If the target cell without a Y/X, skip it
+        // Get individual addresses components
+        clickB = matched[1];
+        clickY = matched[2];
+        clickX = matched[3];
+
+        // Debug
+        console.log(`${event.target.id} (B ${clickB}, Y ${clickY}, X ${clickX}) was clicked:`, event);
+    }
+
     // Get the cell Y and Xumn that was clicked
-    let indexX = event.target.id.indexOf(`c`);
-    clickY = event.target.id.substring(1, indexX-1);
-    clickX = event.target.id.substring(indexX+1);
-
-    // debug
-    console.log(`${event.target.id} (Y ${clickY}, X ${clickX}) was clicked:`, event);
+    // let indexX = event.target.id.indexOf(`c`);
+    // clickY = event.target.id.substring(1, indexX-1);
+    // clickX = event.target.id.substring(indexX+1);
 
 }
 
@@ -814,52 +897,67 @@ function createHTMLBoard() {
     const appDiv = document.querySelector(`#app`);
     appDiv.replaceChildren();
 
-    // Make one div per board square
-    for (let Y = 0; Y < gameHeight; Y++) {
+    // create two buffers that we can toggle between
+    for (let buffer = 0; buffer < 2; buffer++) {
 
-        // Calulate the name of the Y
-        let rowId = "row" + Y;
+        // make one div per buffer
+        const bufferDiv = document.createElement(`div`);
+        bufferDiv.id = "buffer" + buffer;
 
-        // make a div for the cell (5% of grade)
-        const rowElement = document.createElement(`div`);
-        rowElement.id = rowId;
-        rowElement.style.display = "grid";
-        rowElement.style.height = "5em";
-        // console.log(rowElement.id);
-        colString = ``;
-
-        // Debug stuff
-        // rowElement.style.backgroundcolor = "red";
-        // rowElement.stylecolor = "white";
-        // rowElement.innerHTML = rowId;
-
-        // Make the columns
-        for (let X = 0; X < gameWidth; X++) {
-            colString += '1fr ';
-
-            // 5% of grade
-            const colElement = document.createElement(`div`);
-            let cellId = "r" + Y + "-c" + X;
-            // console.log(cellId);
-
-            colElement.className = 'cell';
-            colElement.id = cellId;
-
-            // Populate it with any entities
-            // colElement.innerHTML = terrainMap[Y][X].icon;
-            colElement.innerHTML = blank.icon;
-
-            // console.log(`cellId [${Y}][${X}] = ${colElement.innerHTML}`);
-            
-            // Add new cell to the row
-            rowElement.appendChild(colElement);
-        }
+        // First buffer is visible, second buffer is hidden
+        bufferDiv.style.display = (buffer) ? "none" : "visible";
         
-        // Append the row to the application area (5% of the grade)
-        rowElement.id = rowId;
-        rowElement.className = 'row';
-        rowElement.style.gridTemplateColumns = colString;
-        appDiv.appendChild(rowElement);
+        // Make one div per board square
+        for (let Y = 0; Y < gameHeight; Y++) {
+
+            // Calulate the name of the Y
+            let rowId = "row" + Y;
+
+            // make a div for the cell (5% of grade)
+            const rowElement = document.createElement(`div`);
+            rowElement.id = rowId;
+            rowElement.style.display = "grid";
+            rowElement.style.height = "5em";
+            // console.log(rowElement.id);
+            colString = ``;
+
+            // Debug stuff
+            // rowElement.style.backgroundcolor = "red";
+            // rowElement.stylecolor = "white";
+            // rowElement.innerHTML = rowId;
+
+            // Make the columns
+            for (let X = 0; X < gameWidth; X++) {
+                colString += '1fr ';
+
+                // 5% of grade
+                const colElement = document.createElement(`div`);
+                let cellId = "b" + buffer + "-r" + Y + "-c" + X;
+                // console.log(cellId);
+
+                colElement.className = 'cell';
+                colElement.id = cellId;
+
+                // Populate it with any entities
+                // colElement.innerHTML = terrainMap[Y][X].icon;
+                colElement.innerHTML = " "; // blank.icon;
+
+                // console.log(`cellId [${Y}][${X}] = ${colElement.innerHTML}`);
+                
+                // Add new cell to the row
+                rowElement.appendChild(colElement);
+            }
+
+            // Append the row to the buffer
+            rowElement.id = rowId;
+            rowElement.className = 'row';
+            rowElement.style.gridTemplateColumns = colString;
+            bufferDiv.appendChild(rowElement);
+        }
+
+        // Append the buffer to the application area (5% of the grade)
+        buffer.className = 'buffer';
+        appDiv.appendChild(bufferDiv);
     }
 
     // Add mouse click event for the entire app
