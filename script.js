@@ -21,7 +21,7 @@ let musicStarted = false;
 //================================================
 
 const cueManOverboard = new Audio(`./startrescue.mp3`);
-const cueManSpotted   = new Audio(`./crashsitespotted.mp3`);
+const cueManSpotted   = new Audio(`./manspotted.mp3`);
 const cueManLost      = new Audio(`./crashsitelost.mp3`);
 const cueManRescued   = new Audio(`./gooserescued.mp3`);
 const cueMovingAway   = new Audio(`./farsonar.mp3`);
@@ -35,9 +35,9 @@ window.resizeTo(gameWidth, gameHeight);
 // Map and map symbols
 const terrainMap = [gameWidth];
 const wave = `\u{A540}`;                    // Turbulent water
-const island = `\u{1FAA8}`;                 // Land / rocks
+// const island = `\u{1FAA8}`;                 // Land / rocks
 const plane = `\u{2708}`;                   // Crash site
-const numIslands = 7;
+// const numIslands = 7;
 const numWaves = 10;
 
 // To draw the ship and swimmer
@@ -1101,8 +1101,8 @@ window.alert(
 
 window.alert(
     `Dungeon!\n\n` +
-    `Note: You can only move one square at a time, and you can't enter rough` +
-    `water ${wave} or rocks ${island}. Steer around them.\n\n`
+    `Note: You can only move one square at a time.`
+    // `water ${wave} or rocks ${island}. Steer around them.\n\n`
 );
 
 // Get character's name
