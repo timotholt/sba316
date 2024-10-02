@@ -641,34 +641,38 @@ function updateOnHover() {
             removeCssStyleFromCell(y, x, "monsterOutOfRange");
             removeCssStyleFromCell(y, x, "treasure");
 
-            // Add other styles based upon what kind of entity is in the square
-            switch (terrainMap[y][x].type) {
+            // If square(x,y) is visible to the player
+            if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
 
-                // Some kind of monster
-                case 'monster':
+                // Figure out what kind of entity is in that square
+                switch (terrainMap[y][x].type) {
 
-                    // if in range of weapon
-                    if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
-                        // we can attack it
-                        addCssStyleToCell(y, x, "monsterInRange");
-                    else
-                        // not in range, we can't attack
-                        addCssStyleToCell(y, x, "monsterOutOfRange");
-                    break;
+                    // Some kind of monster
+                    case 'monster':
 
-                // Some kind of treasure
-                case 'chest':
-                case 'gold':
-                case 'corpose':
-                    // gold is here
-                    addCssStyleToCell(y, x, "treasure");
-                    break;
+                        // if in range of weapon
+                        if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
+                            // we can attack it
+                            addCssStyleToCell(y, x, "monsterInRange");
+                        else
+                            // not in range, we can't attack
+                            addCssStyleToCell(y, x, "monsterOutOfRange");
+                        break;
 
-                // empty spot
-                default:
-                    // If we can walk there... (one square away), add the canMoveTo style
-                    if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= 1.5)
-                        addCssStyleToCell(y, x, "canMoveTo");
+                    // Some kind of treasure
+                    case 'chest':
+                    case 'gold':
+                    case 'corpose':
+                        // gold is here
+                        addCssStyleToCell(y, x, "treasure");
+                        break;
+
+                    // empty spot
+                    default:
+                        // If we can walk there... (one square away), add the canMoveTo style
+                        if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= 1.5)
+                            addCssStyleToCell(y, x, "canMoveTo");
+                }
             }
         }
     }

@@ -66,16 +66,20 @@ button:hover {
 
 .canMoveTo:hover {
   background-color: green;
+  cursor: move;
 }
 
 .monsterInRange:hover {
   background-color: red;
+  cursor: "crosshair";
 }
 
 .monsterOutOfRange:hover {
   background-color: orange;
+  cursor: "crosshair";
 }
 
 .treasure:hover {
   background-color: yellow;
+  cursor: "pointer"; 
 }
