@@ -1,8 +1,8 @@
 sba316
 
-Source code at: https://github.com/timotholt/sba-316/
+Source code at: https://github.com/timotholt/sba316/
 
-Running version at: https://timotholt.github.io/alab-316/
+Running version at: https://timotholt.github.io/sba316/
 
 | Requirement | Percentage Finished |
 | :--- | :---: | :---: |
