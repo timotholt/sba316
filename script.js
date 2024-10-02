@@ -207,6 +207,7 @@ const xpChart = [
 
 // This is an empty spot on the board.  Empty spots 
 const blank = {
+    type: 'blank',
     name: 'blank',
     icon: '.',
     entityVisible: false
@@ -216,6 +217,7 @@ const entityTemplates = [
 
     // Fighter
     {
+        type: `monster`,
         name: `fighter`,
         icon: `F`,
 
@@ -246,6 +248,9 @@ const entityTemplates = [
         // Runtime stuff
         entityVisible: false,
 
+        // Gold
+        gold: 0,
+
         // Where entity is on the map
         X: -1,
         Y: -1,
@@ -257,6 +262,7 @@ const entityTemplates = [
     
     // Wizard
     {
+        type: `monster`,
         name: `wizard`,
         icon: `w`,
 
@@ -287,6 +293,9 @@ const entityTemplates = [
         // Runtime stuff
         entityVisible: false,
 
+        // Gold
+        gold: 0,
+
         // Where entity is on the map
         X: -1,
         Y: -1,
@@ -298,6 +307,7 @@ const entityTemplates = [
 
     // Monster
     {
+        type: `monster`,
         name: `goblin`,
         icon: `g`,
 
@@ -328,6 +338,9 @@ const entityTemplates = [
         // Runtime stuff
         entityVisible: false,
 
+        // Gold
+        gold: 0,
+
         // Where entity is on the map
         X: -1,
         Y: -1,
@@ -339,7 +352,53 @@ const entityTemplates = [
 
     // Treasure chest
     {
+        type: `chest`,
         name: `treasure chest`,
+        icon: `[$]`,
+
+        startLevel: 1,
+        currentLevel: 1,
+        maxLevel: 10,
+
+        startXp: 0,
+        currentXp: 0,
+
+        startHp: 10,
+        currentHp: 10,
+        maxHp: 10000,
+        
+        startSightRange: 3,
+        currentSightRange: 3,
+        maxSightRange: 100,
+        
+        attackType: `none`,
+        attackMessage: `ERROR BAD ATTACK MESSAGE`,
+        attackRange: 0,
+        attackDamage: 0,
+
+        startSkillPoints: 10,
+        currentSkillPoints: 10,
+        skillPointsPerLevel: 1,
+
+        // Runtime stuff
+        entityVisible: false,
+
+        // Gold
+        gold: 0,
+
+        // Where entity is on the map
+        X: -1,
+        Y: -1,
+        lastSeenX: -1,
+        lastSeenY: -1,    
+        lastX: -1,
+        lastY: -1
+    },
+
+    // Gold
+    {
+        type: `gold`,
+        name: `gold`,
         icon: `$`,
 
         startLevel: 1,
@@ -369,6 +428,9 @@ const entityTemplates = [
         // Runtime stuff
         entityVisible: false,
 
+        // Gold
+        gold: 0,
+
         // Where entity is on the map
         X: -1,
         Y: -1,
@@ -376,7 +438,7 @@ const entityTemplates = [
         lastSeenY: -1,    
         lastX: -1,
         lastY: -1
-    }    
+    }        
 ];
 
 //=======================================================
@@ -407,7 +469,7 @@ function entityGainsLevel(entity) {
 
     // Gain skill points to spend
     entity.skillPoints += entity.skillPointsPerLevel;
-    console.log(`${entity.name} reaches level ${enity.level} and gains ${entity.skillPointsPerLevel}`);
+    console.log(`${entity.name} reaches level ${entity.level} and gains ${entity.skillPointsPerLevel}`);
 }
 
 //=======================================================
@@ -463,6 +525,11 @@ function entityAttacksEntity(attacker, defender) {
             gainXp(attacker, xpGained);
 
             console.log(`${defender.name} has ${defender.deathMessage} ${attacker.name}. ${attacker.name} gained ${xpGained}`); 
+
+            // Defender icon changes to corpse %
+            defender.entityType = 'corpse';
+            defender.icon = `%`;
+            defender.name = `corpse of ` + defender.name;
         }
 }
 
@@ -551,9 +618,17 @@ function distanceBetweenEntities(entity1, entity2) {
 //=========================================================================
 // updateOnHover()
 //
+// whent he player moves, we update the 'on hover' of all objects on the
+// map.
+//
+// green = player can mvoe there
+// orange = monster out of range of player's weapon
+// red = monster in range of player's weapon
+// yellow = treasure in range of player
 // 
-//=========================================================================
 // Iterate over a collection of elements to acomplish some task (5%)
+//=========================================================================
+
 function updateOnHover() {
 
     // Iterate over each cell on the game map
@@ -567,12 +642,10 @@ function updateOnHover() {
             removeCssStyleFromCell(y, x, "treasure");
 
             // Add other styles based upon what kind of entity is in the square
-            switch (terrainMap[y][x].name) {
+            switch (terrainMap[y][x].type) {
 
                 // Some kind of monster
-                case 'goblin':
-                case 'fighter':
-                case 'wizard':
+                case 'monster':
 
                     // if in range of weapon
                     if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
@@ -584,7 +657,9 @@ function updateOnHover() {
                     break;
 
                 // Some kind of treasure
-                case 'treasure chest':
+                case 'chest':
+                case 'gold':
+                case 'corpose':
                     // gold is here
                     addCssStyleToCell(y, x, "treasure");
                     break;
@@ -807,7 +882,9 @@ function initPlayerCharacter() {
     entityList[0] = Object.assign({}, entityTemplates[0]);
     entityList[0].entityVisible = true;
     entityList[0].icon = '@';                                   // just like hack and nethack
+    entityList[0].type = 'player';
     entityList[0].name = 'Player';
+    entityList[0].gold = 0;
 
     // Return player entity
     return (entityList[0]);
