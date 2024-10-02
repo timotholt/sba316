@@ -14,7 +14,6 @@ rescueMusic.volume = rescueVolume;
 const victoryMusic = new Audio(`./ff14-fanfare.mp3`);
 const victoryVolume = 1.0;
 victoryMusic.volume = victoryVolume;
-
 let musicStarted = false;
 
 //================================================
