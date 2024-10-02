@@ -52,46 +52,80 @@ const randomInt = (max) => Math.floor(Math.random() * max);
 const randY = () => randomInt(gameHeight);
 const randX = () => randomInt(gameWidth);
 
-// Distance from ship to crash site
-const distanceOnTop = 0;          // Ship on top of the swimmer
-const distanceIsClose = 3;        // <= 3 is close
-const distanceIsMedium = 6;       // <= 5 is medium
+//===============================================================
+// calcCellId(y, x)
+//
+// returns: r###-c### which we use as a name for a div.id
+//
+// for example:
+//
+// calcCellAddress(8, 22)
+//
+// returns `r8-c22`
+//
+// which we use when we create a new <div> to represent a square
+// on the map
+//===============================================================
 
-// Starting coords of ship and swimmer
-let shipY = 0;
-let shipX = 0;
-let swimmerY = gameHeight - 1;
-let swimmerX = gameWidth - 1;
-
-// 
-function calcCellAddress(Y, X) {
+function calcCellId(Y, X) {
     return (`r${Y}-c${X}`);
 }
 
+//===============================================================
+// getDivByCellAddress(y, x)
+//
+// Given a address(y,x), get the appropriate div with the id
+//
+// for example:
+//
+// getDivByCellAddress(2, 3)
+//
+// returns <div id='r2-c3'>
+//===============================================================
+
 function getDivByCellAddress(Y, X) {
-    return (document.getElementById(calcCellAddress(Y, X)));
+    return (document.getElementById(calcCellId(Y, X)));
 }
 
-// Change the text of the div with the specified Y/X
+//===============================================================
+// changeHTMLCellText(Y, X, text)
+//
+// Given an address(y, x), change the text of the div with the id
+//===============================================================
+
 function changeHTMLCellText(Y, X, text) {
     getDivByCellAddress(Y, X).innerHTML = text;
 }
 
+//===============================================================
 // Add style of the div with the specified Y/X
-function addStyleToCell(Y, X, style) {
+//===============================================================
+
+function addCssStyleToCell(Y, X, style) {
     let cell = getDivByCellAddress(Y, X);
     cell.classList.add(style);
 }
 
+//===============================================================
 // Remove style of the div with the specified Y/X
-function removeStyleFromCell(Y, X, style) {
+//===============================================================
+
+function removeCssStyleFromCell(Y, X, style) {
     let cell = getDivByCellAddress(Y, X);
     cell.classList.remove(style);
 }
 
+//===============================================================
+// Game function: return a game entity from the virtual map
+//===============================================================
+
 function getEntityAtCell(Y, X) {
     return (terrainMap[Y][X]);
 }
+
+//===============================================================
+// Game function: move an entity to the specified location
+//===============================================================
 
 function moveEntity(entity, Y, X) {
 
@@ -111,17 +145,22 @@ function moveEntity(entity, Y, X) {
     entity.Y = Y;
 }
 
-// Distance between row/col
+//===============================================================
+// Distance between two points
+//===============================================================
+
 function distanceBetween(x1, y1, x2, y2) {
     const deltaX = x2 - x1;
     const deltaY = y2 - y1;
-    
     return Math.abs(Math.sqrt(deltaX * deltaX + deltaY * deltaY));
 }
 
-// Draw staticEntity()
+//===============================================================
+// DrawEntityAbsolutely()
 //
-// Draw stuff regardless of player view distance
+// Draw game entity regardless of player visibility distance
+//===============================================================
+
 function drawEntityAbsolutely(entity) {
 
     // If the entity has different coordinates from what we last drew it at...
@@ -197,7 +236,7 @@ const entityTemplates = [
         
         attackType: `sword`,
         attackMessage: `swings a sword`,
-        attackRange: 1,
+        attackRange: 1.5,
         attackDamage: 10,
 
         startSkillPoints: 10,
@@ -279,7 +318,7 @@ const entityTemplates = [
         
         attackType: `club`,
         attackMessage: `swings his club`,
-        attackRange: 1,
+        attackRange: 1.5,
         attackDamage: 5,
 
         startSkillPoints: 10,
@@ -432,7 +471,7 @@ function entityAttacksEntity(attacker, defender) {
 //=======================================================
 
 // Draw the entity on the board, taking distance from the player into account
-function drawEntity(entity) {
+function drawVisibileEntity(entity) {
 
     // console.log(`drawing ${entity} = ${entity.name}`)
 
@@ -491,7 +530,7 @@ function drawAllEntities() {
     // Draw all entities
     for (let i = 1; i < entityList.length; i++) {
         // console.log(`drawing entity[${i}] = ${entityList[i].name}`)
-        drawEntity(entityList[i]);
+        drawVisibileEntity(entityList[i]);
     }
 }
 
@@ -509,17 +548,55 @@ function distanceBetweenEntities(entity1, entity2) {
     return Math.abs(Math.sqrt(deltaX * deltaX + deltaY * deltaY));
 }
 
-function updateHoverMap() {
-    for (let y = 0; y < gameHeight; y++)
+//=========================================================================
+// updateOnHover()
+//
+// 
+//=========================================================================
+// Iterate over a collection of elements to acomplish some task (5%)
+function updateOnHover() {
+
+    // Iterate over each cell on the game map
+    for (let y = 0; y < gameHeight; y++) {
         for (let x = 0; x < gameWidth; x++) {
 
-            // Remove any hover elements
-            removeStyleFromCell(y, x, "canMoveTo");
+            // Remove any existing CSS hover styles
+            removeCssStyleFromCell(y, x, "canMoveTo");
+            removeCssStyleFromCell(y, x, "monsterInRange");
+            removeCssStyleFromCell(y, x, "monsterOutOfRange");
+            removeCssStyleFromCell(y, x, "treasure");
 
-            // If we can walk there... (one square away)
-            if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= 1.5)
-                addStyleToCell(y, x, "canMoveTo");
+            // Add other styles based upon what kind of entity is in the square
+            switch (terrainMap[y][x].name) {
+
+                // Some kind of monster
+                case 'goblin':
+                case 'fighter':
+                case 'wizard':
+
+                    // if in range of weapon
+                    if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
+                        // we can attack it
+                        addCssStyleToCell(y, x, "monsterInRange");
+                    else
+                        // not in range, we can't attack
+                        addCssStyleToCell(y, x, "monsterOutOfRange");
+                    break;
+
+                // Some kind of treasure
+                case 'treasure chest':
+                    // gold is here
+                    addCssStyleToCell(y, x, "treasure");
+                    break;
+
+                // empty spot
+                default:
+                    // If we can walk there... (one square away), add the canMoveTo style
+                    if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= 1.5)
+                        addCssStyleToCell(y, x, "canMoveTo");
+            }
         }
+    }
 }
 
 //=================================================
@@ -650,11 +727,12 @@ function createLogicalGameBoard() {
     }    
 }
 
-// Pouplate the map with rocks and waves
+// Populate the screen by making divs and appending them over and over...
+// This is 5% + 5% + 10% of the grade
 function createHTMLBoard() {
 
-    // Erase any existing children DIVs
-    const appDiv = document.getElementById(`app`);
+    // Erase any existing children DIVs and cache node (5% of grade)
+    const appDiv = document.querySelector(`#app`);
     appDiv.replaceChildren();
 
     // Make one div per board square
@@ -663,7 +741,7 @@ function createHTMLBoard() {
         // Calulate the name of the Y
         let rowId = "row" + Y;
 
-        // make a div for the Y
+        // make a div for the cell (5% of grade)
         const rowElement = document.createElement(`div`);
         rowElement.id = rowId;
         rowElement.style.display = "grid";
@@ -680,13 +758,13 @@ function createHTMLBoard() {
         for (let X = 0; X < gameWidth; X++) {
             colString += '1fr ';
 
+            // 5% of grade
             const colElement = document.createElement(`div`);
             let cellId = "r" + Y + "-c" + X;
             // console.log(cellId);
 
             colElement.className = 'cell';
             colElement.id = cellId;
-//            colElement.innerHTML = cellId;
 
             // Populate it with any entities
             // colElement.innerHTML = terrainMap[Y][X].icon;
@@ -698,7 +776,7 @@ function createHTMLBoard() {
             rowElement.appendChild(colElement);
         }
         
-        // Add the Y to the screen
+        // Append the row to the application area (5% of the grade)
         rowElement.id = rowId;
         rowElement.className = 'row';
         rowElement.style.gridTemplateColumns = colString;
@@ -707,8 +785,6 @@ function createHTMLBoard() {
 
     // Add mouse click event for the entire app
     appDiv.addEventListener("click", handleClick);
-
-    const YElement = document.createElement(`div`);
 }
 
 let lastDistance = 100000000000;
@@ -852,7 +928,7 @@ function gameLoop() {
 
         // Draw all entities
         drawAllEntities();
-        updateHoverMap();
+        updateOnHover();
 
         // And reset click
         clickX = -1;
@@ -939,10 +1015,6 @@ initGameState();
 
 // 
 
-// Draw the ship only
-// drawShip(shipY, shipX);
-// drawSwimmer(swimmerY, swimmerX);
-
 // // Show the instructions
 window.alert(
     `Dungeon!\n\n` +
@@ -964,8 +1036,12 @@ while ((characterName === null) || characterName.length <= 0) {
     if ((characterName === null) || characterName.length <= 0)
         window.alert("Character name can't be blank!");
 }
+
 // Assign character name
 playerCharacter().name = characterName;
+
+drawAllEntities();
+updateOnHover();
 
 // Start the game
 window.requestAnimationFrame(gameLoop);

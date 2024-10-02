@@ -65,5 +65,17 @@ button:hover {
 }
 
 .canMoveTo:hover {
-  background-color: darkcyan;
+  background-color: green;
+}
+
+.monsterInRange:hover {
+  background-color: red;
+}
+
+.monsterOutOfRange:hover {
+  background-color: orange;
+}
+
+.treasure:hover {
+  background-color: yellow;
 }
