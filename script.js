@@ -70,7 +70,7 @@ let onScreenBuffer = 0;
 let offScreenBuffer = 1;
 
 //Debug
-offScreenBuffer = 0;
+// offScreenBuffer = 0;
 
 function switchBuffer(buffer = -1) {
 
@@ -109,11 +109,11 @@ function switchBuffer(buffer = -1) {
     // Erase the text of the offscreen and hover buffer
     for (let row = 0; row < gameHeight; row++)
         for (let col = 0; col < gameWidth; col++) {
-            changeHTMLCellText(buffer, row, col, null);
+            changeHTMLCellText(offScreenBuffer, row, col, null);
 
             // Remove all existing CSS hover styles
             for (let n = 0; n < hoverStyles.length; n++)
-                removeCssStyleFromCell(offScreenBuffer, y, x, hoverStyles[n]);                
+                removeCssStyleFromCell(offScreenBuffer, row, col, hoverStyles[n]);                
     }
 }
 
@@ -128,12 +128,12 @@ function switchBuffer(buffer = -1) {
 //
 // returns `b0-r8-c22`
 //
-// which we use when we create a new <div> to represent a square
-// on the map
+// which we use as the <div id="b0-r8-c22" when we create a new
+// <div> to represent a square on the map
 //===============================================================
 
-function calcCellId(buffer, Y, X) {
-    return (`b${buffer}-r${Y}-c${X}`);
+function calcCellId(buffer, row, col) {
+    return (`b${buffer}-r${row}-c${col}`);
 }
 
 //===============================================================
@@ -148,35 +148,35 @@ function calcCellId(buffer, Y, X) {
 // returns <div id='b0-r2-c3'>
 //===============================================================
 
-function getDivByCellAddress(buffer, Y, X) {
-    return (document.getElementById(calcCellId(buffer, Y, X)));
+function getDivByCellAddress(buffer, row, col) {
+    return (document.getElementById(calcCellId(buffer, row, col)));
 }
 
 //===============================================================
-// changeHTMLCellText(buffer, Y, X, text)
+// changeHTMLCellText(buffer, row, col, text)
 //
-// Given an address(buffer, y, x), change the text of the div with the id
+// Given an address(buffer, row, col), change the text of the div with the id
 //===============================================================
 
-function changeHTMLCellText(buffer, Y, X, text) {
-    getDivByCellAddress(buffer, Y, X).innerHTML = text;
+function changeHTMLCellText(buffer, row, col, text) {
+    getDivByCellAddress(buffer, row, col).innerHTML = text;
 }
 
 //===============================================================
-// Add style of the div with the specified b/Y/X
+// Add style of the div with the specified b/r/c
 //===============================================================
 
-function addCssStyleToCell(buffer, Y, X, style) {
-    let cell = getDivByCellAddress(buffer, Y, X);
+function addCssStyleToCell(buffer, row, col, style) {
+    let cell = getDivByCellAddress(buffer, row, col);
     cell.classList.add(style);
 }
 
 //===============================================================
-// Remove style of the div with the specified b/Y/X
+// Remove style of the div with the specified b/r/c
 //===============================================================
 
-function removeCssStyleFromCell(buffer, Y, X, style) {
-    let cell = getDivByCellAddress(buffer, Y, X);
+function removeCssStyleFromCell(buffer, row, col, style) {
+    let cell = getDivByCellAddress(buffer, row, col);
     cell.classList.remove(style);
 }
 
@@ -184,8 +184,12 @@ function removeCssStyleFromCell(buffer, Y, X, style) {
 // Game function: return a game entity from the virtual map
 //===============================================================
 
-function getEntityAtCell(Y, X) {
-    return (terrainMap[Y][X]);
+function getEntityAtCell(row, col) {
+    for (let i = 0; i < entityList[i].length; i++)
+        if ((entityList[i].X === col) && (entityList[i].Y === row))
+            return (entityList[i]);
+    return null;
+    // return (terrainMap[row][col]);
 }
 
 //===============================================================
@@ -198,10 +202,10 @@ function moveEntity(entity, Y, X) {
     console.log(`lastXY = ${entity.lastX},${entity.lastY}`);
 
     // Erase old postion in the map
-    terrainMap[entity.Y][entity.X] = blank;
+    // terrainMap[entity.Y][entity.X] = blank;
 
     // Move to new position in the map
-    terrainMap[Y][X] = entity;
+    // terrainMap[Y][X] = entity;
 
     // Update entity location
     entity.lastX = entity.X;
@@ -228,24 +232,8 @@ function distanceBetween(x1, y1, x2, y2) {
 
 function drawEntityAbsolutely(entity) {
 
-    // If the entity has different coordinates from what we last drew it at...
-    if ((entity.lastSeenY !== entity.Y) || (entity.lastSeenX !== entity.X)) {
-
-        // Remove old entity location if the old location is valid (not -1)
-        if (entity.lastSeenY >= 0 && entity.lastSeenX >= 0) {
-            // console.log(`Erasing old ship location because it was last drawn at ${lastDrawnShipY} ${lastDrawnShipX}`);
-            // console.log(`calling change text with lastDrawnShipY = ${lastDrawnShipY} lastDrawnShipX = ${lastDrawnShipX} ${blank}`);
-            changeHTMLCellText(offScreenBuffer, entity.lastSeenY, entity.lastSeenX, blank.icon);
-            // changeHTMLCellText(lastDrawnShipY, lastDrawnShipX, terrainMap[lastDrawnShipY][lastDrawnShipX] + blank);
-        };
-
-        // Drawing the entity at new spot
-        // console.log(`Drawing entity ${entity.name} at ${entity.Y} ${entity.X}`);
-
-        changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, entity.icon);
-        entity.lastSeenY = entity.Y;
-        entity.lastSeenX = entity.X;
-    }
+    // console.log(`Drawing entity ${entity.name} at ${entity.Y} ${entity.X}`);
+    changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, entity.icon);
 }
 
 //===========================
@@ -275,7 +263,7 @@ const blank = {
     type: 'blank',
     name: 'blank',
     icon: '.',
-    entityVisible: false
+    // entityVisible: false
 }; // empty spot
 
 const entityTemplates = [
@@ -311,7 +299,7 @@ const entityTemplates = [
         skillPointsPerLevel: 1,
 
         // Runtime stuff
-        entityVisible: false,
+        // entityVisible: false,
 
         // Gold
         gold: 0,
@@ -319,8 +307,8 @@ const entityTemplates = [
         // Where entity is on the map
         X: -1,
         Y: -1,
-        lastSeenX: -1,
-        lastSeenY: -1,    
+        // lastSeenX: -1,
+        // lastSeenY: -1,    
         lastX: -1,
         lastY: -1
     },
@@ -356,7 +344,7 @@ const entityTemplates = [
         skillPointsPerLevel: 1,
 
         // Runtime stuff
-        entityVisible: false,
+        // entityVisible: false,
 
         // Gold
         gold: 0,
@@ -364,8 +352,8 @@ const entityTemplates = [
         // Where entity is on the map
         X: -1,
         Y: -1,
-        lastSeenX: -1,
-        lastSeenY: -1,    
+        // lastSeenX: -1,
+        // lastSeenY: -1,    
         lastX: -1,
         lastY: -1
     },
@@ -401,7 +389,7 @@ const entityTemplates = [
         skillPointsPerLevel: 1,
 
         // Runtime stuff
-        entityVisible: false,
+        // entityVisible: false,
 
         // Gold
         gold: 0,
@@ -409,8 +397,8 @@ const entityTemplates = [
         // Where entity is on the map
         X: -1,
         Y: -1,
-        lastSeenX: -1,
-        lastSeenY: -1,    
+        // lastSeenX: -1,
+        // lastSeenY: -1,    
         lastX: -1,
         lastY: -1
     },
@@ -446,7 +434,7 @@ const entityTemplates = [
         skillPointsPerLevel: 1,
 
         // Runtime stuff
-        entityVisible: false,
+        // entityVisible: false,
 
         // Gold
         gold: 0,
@@ -454,8 +442,8 @@ const entityTemplates = [
         // Where entity is on the map
         X: -1,
         Y: -1,
-        lastSeenX: -1,
-        lastSeenY: -1,    
+        // lastSeenX: -1,
+        // lastSeenY: -1,    
         lastX: -1,
         lastY: -1
     },
@@ -491,7 +479,7 @@ const entityTemplates = [
         skillPointsPerLevel: 1,
 
         // Runtime stuff
-        entityVisible: false,
+        // entityVisible: false,
 
         // Gold
         gold: 0,
@@ -499,8 +487,8 @@ const entityTemplates = [
         // Where entity is on the map
         X: -1,
         Y: -1,
-        lastSeenX: -1,
-        lastSeenY: -1,    
+        // lastSeenX: -1,
+        // lastSeenY: -1,    
         lastX: -1,
         lastY: -1
     }        
@@ -599,32 +587,35 @@ function entityAttacksEntity(attacker, defender) {
 }
 
 //=======================================================
-// Draw entity
+// DrawEntityFromPlayerPov
 //=======================================================
 
 // Draw the entity on the board, taking distance from the player into account
-function drawVisibleEntity(entity) {
+function drawEntityFromPlayerPov(entity) {
 
-    // console.log(`drawing ${entity} = ${entity.name}`)
+    console.log(`drawing ${entity} = ${entity.name}`);
+
+    // if entity is invalid, skip it {
+    if ((!entity) || (entity.X < 0) || (entity.Y < 0) || (!entity.icon)) {
+        console.log(`Bad entity passed to drawEntityFromPlayerPov`);
+        return;
+    }
 
     let sr = playerCharacter().currentSightRange;
     let pc = playerCharacter();
+    let d  = distanceBetweenEntities(pc, entity);
 
     // If the entity is in sight range of the player
-    if (distanceBetweenEntities(pc, entity) <= sr) {
+    if (d <= sr) {
 
-        // if the entity was visible the last time we drew him, leave him there 
-        if (entity.entityVisible) {
-            return;
-        }
-
+        // // if the entity was visible the last time we drew him, leave him there 
+        // if (entity.entityVisible) {
+        //     return;
+        // }
         // Entity just became visible
-        changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, terrainMap[entity.Y][entity.X].icon);
 
-        // console.log(`2. Drawing swimmer at ${lastDrawnSwimmerY} ${lastDrawnSwimmerX}`);
-        entity.lastSeenX     = entity.X;
-        entity.lastSeenY     = entity.Y;
-        entity.entityVisible = true;
+        // changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, terrainMap[entity.Y][entity.X].icon);
+        changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, entity.icon);
 
         if (musicStarted) {
             // Play man spotted
@@ -635,44 +626,36 @@ function drawVisibleEntity(entity) {
 
     // Otherwise player is too far away to see the entity
     else {
-
-        // If the entity was last visible, hide him
-        if (entity.entityVisible) {
-            // console.log(`3. Erasing old entity location because it was last drawn at ${entity.lastSeenY} ${entity.lastSeenX}`);
-            // changeHTMLCellText(lastDrawnSwimmerY, lastDrawnSwimmerX, terrainMap[lastDrawnSwimmerY][lastDrawnSwimmerX] + blank);
-            changeHTMLCellText(offScreenBuffer, entity.lastSeenY, entity.lastSeenX, " " // blank.icon
+        changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, " " // blank.icon
             );
-            entity.lastSeenY = entity.Y;
-            entity.lastSeenX = entity.X;
-            entity.entityVisible = false;
 
-            if (musicStarted) {
-                // Play man spotted
-                cueManLost.currentTime = 0;
-                cueManLost.play();
-            }
-        }
+        // if (musicStarted) {
+        //     // Play man spotted
+        //     cueManLost.currentTime = 0;
+        //     cueManLost.play();
+        // }
     }
 }
 
-// Redraw the screen
-function drawAllEntities() {
-
-    debugger;
+function drawBoard() {
 
     // Draw the game map
     for (let row = 0; row < gameHeight; row++)
         for (let col = 0; col < gameWidth; col++)
-            if (terrainMap[row][col] === blank) {
+            if (!getEntityAtCell(row, col)) {
                 blank.X = row;
                 blank.Y = col;
-                drawVisibleEntity(blank);
+                drawEntityFromPlayerPov(blank);
             }
+}
 
+// Redraw the screen
+function drawAllEntities() {
+    
     // Draw all entities
     for (let i = 1; i < entityList.length; i++) {
-        // console.log(`drawing entity[${i}] = ${entityList[i].name}`)
-        drawVisibleEntity(entityList[i]);
+        console.log(`drawing entity[${i}] = ${entityList[i].name}`)
+        drawEntityFromPlayerPov(entityList[i]);
     }
 
     // Draw the player
@@ -713,43 +696,45 @@ function updateOnHover() {
     for (let y = 0; y < gameHeight; y++) {
         for (let x = 0; x < gameWidth; x++) {
 
-            // Remove any existing CSS hover styles
-            removeCssStyleFromCell(onScreenBuffer, y, x, "canMoveTo");
-            removeCssStyleFromCell(onScreenBuffer, y, x, "monsterInRange");
-            removeCssStyleFromCell(onScreenBuffer, y, x, "monsterOutOfRange");
-            removeCssStyleFromCell(onScreenBuffer, y, x, "treasure");
-
             // If square(x,y) is visible to the player
             if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
 
-                // Figure out what kind of entity is in that square
-                switch (terrainMap[y][x].type) {
+                // See if there is an entity at that cell
+                let e = getEntityAtCell(y, x);
 
-                    // Some kind of monster
-                    case 'monster':
+                // If there is an entity at that square
+                if (e) {
+                    // Figure out what kind of entity is in that square
+                    switch (e.type) {
 
-                        // if in range of weapon
-                        if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
-                            // we can attack it
-                            addCssStyleToCell(onScreenBuffer, y, x, "monsterInRange");
-                        else
-                            // not in range, we can't attack
-                            addCssStyleToCell(onScreenBuffer, y, x, "monsterOutOfRange");
-                        break;
+                        // Some kind of monster
+                        case 'monster':
 
-                    // Some kind of treasure
-                    case 'chest':
-                    case 'gold':
-                    case 'corpose':
-                        // gold is here
-                        addCssStyleToCell(onScreenBuffer, y, x, "treasure");
-                        break;
+                            // if in range of weapon
+                            if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
+                                // we can attack it
+                                addCssStyleToCell(offScreenBuffer, y, x, "monsterInRange");
+                            else
+                                // not in range, we can't attack
+                                addCssStyleToCell(offScreenBuffer, y, x, "monsterOutOfRange");
+                            break;
 
-                    // empty spot
-                    default:
-                        // If we can walk there... (one square away), add the canMoveTo style
-                        if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= 1.5)
-                            addCssStyleToCell(onScreenBuffer, y, x, "canMoveTo");
+                        // Some kind of treasure
+                        case 'chest':
+                        case 'gold':
+                        case 'corpose':
+                            // gold is here
+                            addCssStyleToCell(offScreenBuffer, y, x, "treasure");
+                            break;
+
+                        // empty spot
+                        default:
+                    }
+                }
+                else {
+                    // If we can walk there... (one square away), add the canMoveTo style
+                    if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) < 1.42)
+                        addCssStyleToCell(offScreenBuffer, y, x, "canMoveTo");
                 }
             }
         }
@@ -796,41 +781,53 @@ function handleClick(event) {
 }
 
 //=========================================
+// Helper functions
+//=========================================
+
+function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
+
+    let validLoc = false;
+
+    do {
+        // Roll up a random location, check if an entity exists at this y/x
+        let x = (tryX >= 0) ? tryX : randX();
+        let y = (tryY >= 0) ? tryY : randY();
+        let e = getEntityAtCell(y, x);
+
+        // See if there is an entity already at this X/y
+        if (e)
+            continue;
+
+        // // If it's empty...
+        // if (terrainMap[y][x] === blank) {
+        //     terrainMap[y][x] = entity;
+
+        entity.X = entity.lastX = x;
+        entity.Y = entity.lastY = y;
+        console.log(`assigningEntity = ${entity.name}, y = ${entity.Y}, x = ${entity.X}`);
+        validLoc = true;
+
+    } while (!validLoc);
+}
+
+//=========================================
 //=========================================
 
 function createLogicalGameBoard() {
 
-    // Helper functions
-    function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
 
-        for (let validLoc = false; !validLoc; ) {
+    // function makeBlankMap() {
+    //     // Make a blank map
+    //     for (let Y = 0; Y < gameHeight; Y++) {
+    //         terrainMap[Y] = [];
+    //         for (let X = 0; X < gameWidth; X++) {
+    //             terrainMap[Y][X] = blank;
+    //         }
+    //     }
+    // }
 
-            let x = (tryX >= 0) ? tryX : randX();
-            let y = (tryY >= 0) ? tryY : randY();
-
-            // If it's empty...
-            if (terrainMap[y][x] === blank) {
-                terrainMap[y][x] = entity;
-                entity.X = entity.lastX = x;
-                entity.Y = entity.lastY = y;
-                
-                console.log(`assigningEntity = ${entity.name}, y = ${y}, x = ${x}`);
-                validLoc = true;
-            }
-        }
-    }
-    function makeBlankMap() {
-        // Make a blank map
-        for (let Y = 0; Y < gameHeight; Y++) {
-            terrainMap[Y] = [];
-            for (let X = 0; X < gameWidth; X++) {
-                terrainMap[Y][X] = blank;
-            }
-        }
-    }
-
-    // Build a map full of blank objects
-    makeBlankMap();
+    // // Build a map full of blank objects
+    // makeBlankMap();
 
     // Create the player character
     initPlayerCharacter();
@@ -849,7 +846,7 @@ function createLogicalGameBoard() {
         assignEntitySafeXY(entityList[i]);
 
         // Assume it's not visible
-        entityList[i].entityVisible = false;
+        // entityList[i].entityVisible = false;
     }    
 
     // Keep trying to place the player on the board
@@ -982,7 +979,7 @@ function initPlayerCharacter() {
 
     // Make player a fighter and visible
     entityList[0] = Object.assign({}, entityTemplates[0]);
-    entityList[0].entityVisible = true;
+    // entityList[0].entityVisible = true;
     entityList[0].icon = '@';                                   // just like hack and nethack
     entityList[0].type = 'player';
     entityList[0].name = 'Player';
@@ -1001,6 +998,7 @@ function initGameState() {
     // Create game board
     createLogicalGameBoard();
     createHTMLBoard();
+    drawBoard();
     drawAllEntities();
 
     // For proper audio cues
@@ -1066,31 +1064,16 @@ function gameLoop() {
     }
 
     // Check if mouse clicked
-    if (clickX > -1 || clickY > -1) {
+    if (clickX > -1 && clickY > -1) {
 
         // Log it
         console.log(`user clicked (${clickX},${clickY})`);
 
         // if the player clicked on an entity
         let e = getEntityAtCell(clickY, clickX);
-        console.log(`entity clicked on = ${e.name}`);
+        if (e) {
+            console.log(`entity clicked on = ${e.name}`);
 
-        // If the cell is blank, try to move there
-        if (e === blank) {
-
-            // If the distance is < 1.5, try to move there
-            if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.5) {
-
-                // Yes it did!
-                console.log(`${gameLoopCount}: player moved from (${playerCharacter().Y},${playerCharacter().X}) to (${clickY},${clickX}).`);
-
-                // Move there
-                moveEntity(playerCharacter(), clickY, clickX);
-            }
-        }
-
-        // User clicked on entity
-        else {
             switch (e.name) {
                 case 'treasure chest': {
 
@@ -1104,10 +1087,26 @@ function gameLoop() {
                 }
             }
         }
+        
+        // If the cell is blank, try to move there
+        else {
+
+            // If the distance is < 1.5, try to move there
+            if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.5) {
+
+                // Yes it did!
+                console.log(`${gameLoopCount}: player moved from (${playerCharacter().Y},${playerCharacter().X}) to (${clickY},${clickX}).`);
+
+                // Move there
+                moveEntity(playerCharacter(), clickY, clickX);
+            }
+        }
 
         // Draw all entities
         drawAllEntities();
+        drawBoard();
         updateOnHover();
+        switchBuffer();
 
         // And reset click
         clickX = -1;
@@ -1221,8 +1220,9 @@ playerCharacter().name = characterName;
 
 drawAllEntities();
 updateOnHover();
+switchBuffer();
 
 // Start the game
 window.requestAnimationFrame(gameLoop);
 
-console.log(`goodbye world from sba316.2.1`);
+console.log(`goodbye world from sba316`);
