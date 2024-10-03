@@ -30,22 +30,22 @@ const cueMovingCloser = new Audio(`./closesonar.mp3`);
 // force window to be a certain size
 let gameHeight = 10;
 let gameWidth = 10;
-window.resizeTo(gameWidth, gameHeight);
+// window.resizeTo(gameWidth, gameHeight);
 
 // Map and map symbols
-const terrainMap = [gameWidth];
-const wave = `\u{A540}`;                    // Turbulent water
+// const terrainMap = [gameWidth];
+// const wave = `\u{A540}`;                    // Turbulent water
 // const island = `\u{1FAA8}`;                 // Land / rocks
-const plane = `\u{2708}`;                   // Crash site
+// const plane = `\u{2708}`;                   // Crash site
 // const numIslands = 7;
-const numWaves = 10;
+// const numWaves = 10;
 
 // To draw the ship and swimmer
-const man = `\u{1f3ca}`;                    // Man
-const ship = `\u{1F6A2}`;                   // The ship you drive around
-const swimmer = plane + man;                // Crash site
-const ring = `\u{1F6DF}`;                   // The life preserver
-const rescued = ship + ring + swimmer;      // Combination of all 3
+// const man = `\u{1f3ca}`;                    // Man
+// const ship = `\u{1F6A2}`;                   // The ship you drive around
+// const swimmer = plane + man;                // Crash site
+// const ring = `\u{1F6DF}`;                   // The life preserver
+// const rescued = ship + ring + swimmer;      // Combination of all 3
 
 // Random number
 const randomInt = (max) => Math.floor(Math.random() * max); 
@@ -112,8 +112,8 @@ function switchBuffer(buffer = -1) {
             changeHTMLCellText(offScreenBuffer, row, col, '');
 
             // Remove all existing CSS hover styles
-            // for (let n = 0; n < hoverStyles.length; n++)
-                // removeCssStyleFromCell(offScreenBuffer, row, col, hoverStyles[n]);                
+            for (let n = 0; n < hoverStyles.length; n++)
+                removeCssStyleFromCell(offScreenBuffer, row, col, hoverStyles[n]);                
     }
 }
 
@@ -196,6 +196,16 @@ function getEntityAtCell(row, col) {
     return false;
 }
 
+// Remove the specified entity
+// called when we pickup treasure or kill a monster
+
+function destroyEntity(entity) {
+    // Go through the list
+    for (let i = 0; i < entityList.length; i++)
+        if (entityList[i] === entity);
+            entityList.splice(i,1);   
+}
+
 //===============================================================
 // Game function: move an entity to the specified location
 //===============================================================
@@ -274,7 +284,9 @@ const entityTemplates = [
 
     // Fighter
     {
-        type: `monster`,
+        playerCharacter: false,
+        characterClass: `human`,
+        subClass: `fighter`,
         name: `fighter`,
         icon: `F`,
 
@@ -289,8 +301,8 @@ const entityTemplates = [
         currentHp: 10,
         maxHp: 10000,
         
-        startSightRange: 2.99,
-        currentSightRange: 2.99,
+        startSightRange: 2.24,
+        currentSightRange: 2.24,
         maxSightRange: 100,
         
         attackType: `sword`,
@@ -319,7 +331,9 @@ const entityTemplates = [
     
     // Wizard
     {
-        type: `monster`,
+        playerCharacter: false,
+        characterClass: `human`,
+        subClass: `wizard`,
         name: `wizard`,
         icon: `w`,
 
@@ -364,7 +378,9 @@ const entityTemplates = [
 
     // Monster
     {
-        type: `monster`,
+        playerCharacter: false,
+        characterClass: `monster`,
+        subClass: `goblin`,
         name: `goblin`,
         icon: `g`,
 
@@ -409,7 +425,9 @@ const entityTemplates = [
 
     // Treasure chest
     {
-        type: `chest`,
+        playerCharacter: false,
+        characterClass: `chest`,
+        subClass: `treasure chest`,
         name: `treasure chest`,
         icon: `[$]`,
 
@@ -454,7 +472,9 @@ const entityTemplates = [
 
     // Gold
     {
-        type: `gold`,
+        playerCharacter: false,
+        characterClass: `gold`,
+        subClass: `gold`,
         name: `gold`,
         icon: `$`,
 
@@ -690,7 +710,7 @@ function distanceBetweenEntities(entity1, entity2) {
 }
 
 //=========================================================================
-// updateOnHover()
+// updatePossibleTileActions()
 //
 // whent he player moves, we update the 'on hover' of all objects on the
 // map.
@@ -703,11 +723,21 @@ function distanceBetweenEntities(entity1, entity2) {
 // Iterate over a collection of elements to acomplish some task (5%)
 //=========================================================================
 
-function updateOnHover() {
+function updatePossibleTileActions() {
 
     // Iterate over each cell on the game map
     for (let y = 0; y < gameHeight; y++) {
         for (let x = 0; x < gameWidth; x++) {
+
+            // If the square is within site range
+            if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
+                // make the background lighter
+                addCssStyleToCell(offScreenBuffer, y, x, "light");
+            }
+            else
+            {
+                removeCssStyleFromCell(offScreenBuffer, y, x, "light");
+            }
 
             // If square(x,y) is visible to the player
             if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
@@ -718,10 +748,11 @@ function updateOnHover() {
                 // If there is an entity at that square
                 if (e) {
                     // Figure out what kind of entity is in that square
-                    switch (e.type) {
+                    switch (e.charClass) {
 
                         // Some kind of monster
                         case 'monster':
+                        case 'human':
 
                             // if in range of weapon
                             if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
@@ -758,6 +789,7 @@ function updateOnHover() {
 // Event handler
 //=================================================
 
+// Global so the other game loop can read it
 let clickX = -1;
 let clickY = -1;
 let clickB = -1;
@@ -786,6 +818,11 @@ function handleClick(event) {
 
         // Debug
         console.log(`${event.target.id} (B ${clickB}, Y ${clickY}, X ${clickX}) was clicked:`, event);
+
+        // If player clicked on himself, do nothing
+        if (clickX === playerCharacter().X && clickY === playerCharacter().Y) {
+            clickB = clickY = clickX = -1;
+        }
     }
 }
 
@@ -807,10 +844,6 @@ function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
         if (e !== false)
             continue;
 
-        // // If it's empty...
-        // if (terrainMap[y][x] === blank) {
-        //     terrainMap[y][x] = entity;
-
         entity.X = entity.lastX = x;
         entity.Y = entity.lastY = y;
         console.log(`assigningEntity = ${entity.name}, y = ${entity.Y}, x = ${entity.X}`);
@@ -823,20 +856,6 @@ function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
 //=========================================
 
 function createLogicalGameBoard() {
-
-
-    function makeBlankMap() {
-        // Make a blank map
-        for (let Y = 0; Y < gameHeight; Y++) {
-            terrainMap[Y] = [];
-            for (let X = 0; X < gameWidth; X++) {
-                terrainMap[Y][X] = '';
-            }
-        }
-    }
-
-    // Build a map full of blank objects
-    makeBlankMap();
 
     // Create the player character
     initPlayerCharacter();
@@ -895,6 +914,30 @@ function createLogicalGameBoard() {
     }    
 }
 
+//=================================================================
+// message()
+//
+// The game has it's own console.  You output messages to the
+// player here.
+//=================================================================
+
+let messageArea ;
+const messageAreaSubDiv = document.createElement('pre');
+let messageText = '';
+
+function message() {
+
+    // (Tim) - Grab all the arguments and convert it to one long string
+    let s = '';
+    for (i = 0; i < arguments.length; i++) {
+        s += String(arguments[i]);
+    }
+
+    messageText += s + `\n`;
+    messageAreaSubDiv.innerHTML = messageText;
+    messageArea.appendChild(messageAreaSubDiv);
+}
+
 // Populate the screen by making divs and appending them over and over...
 // This is 5% + 5% + 10% of the grade
 function createHTMLBoard() {
@@ -902,6 +945,17 @@ function createHTMLBoard() {
     // Erase any existing children DIVs and cache node (5% of grade)
     const appDiv = document.querySelector(`#app`);
     appDiv.replaceChildren();
+
+    // Add title bar
+    const titleBar = document.createElement('div');
+    titleBar.id = 'titleBar';
+    titleBar.innerHTML = "ASCII Dungeon";
+    appDiv.appendChild(titleBar);
+
+    // Add a grid to hold the game board and the stat sheet
+    const gameArea = document.createElement('div');
+    gameArea.id = 'appArea';
+    appDiv.appendChild(gameArea);
 
     // create two buffers that we can toggle between
     for (let buffer = 0; buffer < 2; buffer++) {
@@ -923,7 +977,6 @@ function createHTMLBoard() {
             const rowElement = document.createElement(`div`);
             rowElement.id = rowId;
             rowElement.style.display = "grid";
-            rowElement.style.height = "5em";
             // console.log(rowElement.id);
             colString = ``;
 
@@ -941,7 +994,7 @@ function createHTMLBoard() {
                 let cellId = "b" + buffer + "-r" + Y + "-c" + X;
                 // console.log(cellId);
 
-                colElement.className = 'cell';
+                colElement.className = 'dungeonCell';
                 colElement.id = cellId;
 
                 // Populate it with any entities
@@ -956,15 +1009,20 @@ function createHTMLBoard() {
 
             // Append the row to the buffer
             rowElement.id = rowId;
-            rowElement.className = 'row';
+            rowElement.className = 'dungeonRow';
             rowElement.style.gridTemplateColumns = colString;
             bufferDiv.appendChild(rowElement);
         }
 
         // Append the buffer to the application area (5% of the grade)
         buffer.className = 'buffer';
-        appDiv.appendChild(bufferDiv);
+        gameArea.appendChild(bufferDiv);
     }
+
+    // Add message area
+    messageArea = document.createElement(`div`);
+    messageArea.id = 'messageArea';
+    gameArea.appendChild(messageArea);
 
     // Add mouse click event for the entire app
     appDiv.addEventListener("click", handleClick);
@@ -980,19 +1038,15 @@ function playerCharacter() {
     return (entityList[0]);
 }
 
-function movePlayerTo(x, y) {
-}
-
 // TEMP: Player starts as a fighter
 function initPlayerCharacter() {
 
     // Make player a fighter and visible
     entityList[0] = Object.assign({}, entityTemplates[0]);
-    // entityList[0].entityVisible = true;
     entityList[0].icon = '@';                                   // just like hack and nethack
-    entityList[0].type = 'player';
     entityList[0].name = 'Player';
     entityList[0].gold = 0;
+    entityList[0].pc = true;
 
     // Return player entity
     return (entityList[0]);
@@ -1008,7 +1062,7 @@ function initGameState() {
     createLogicalGameBoard();
     createHTMLBoard();
     drawBoard();
-    updateOnHover();
+    updatePossibleTileActions();
     switchBuffer();
 
     // For proper audio cues
@@ -1088,7 +1142,8 @@ function gameLoop() {
                 case 'treasure chest': {
                 }
                     break;
-                case 'monster': {
+                case 'monster':
+                case 'human': {
                     // Calculate attacker
                     // Calculate defender
                     // attacker attacks defender
@@ -1113,7 +1168,7 @@ function gameLoop() {
 
         // Draw all entities
         drawBoard();
-        updateOnHover();
+        updatePossibleTileActions();
         switchBuffer();
 
         // And reset click
@@ -1225,6 +1280,13 @@ while ((characterName === null) || characterName.length <= 0) {
 
 // Assign character name
 playerCharacter().name = characterName;
+
+debugger;
+message(`Welcome to ASCII dungeon\n`);
+message(`Your character, ${playerCharacter().name} is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
+
+
+message(`Welcome ${playerCharacter().name}\n. You rock!`);
 
 // Start the game loop
 window.requestAnimationFrame(gameLoop);

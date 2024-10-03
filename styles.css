@@ -1,7 +1,7 @@
-/* body {
+body {
   background: #f5f5f4;
   color: #232323;
-  line-height: 30px;
+  line-height: 10px;
   font-size: 20px;
   font-family: sans-serif;
   padding: 25px 50px;
@@ -30,16 +30,62 @@ button:hover {
   border-color: #09507c;
   background-color: #deedf2;
 }
-  */
 
-.row {
+#app {
+    /* display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-rows: repeat(20, 1fr);
+    gap: 1px; */
+
+    padding: 0em;
+    margin: 0em;
+}
+
+#gameArea {
+  display: grid;
+  background-color: blue;
+  grid-template-columns: "1fr 1fr 1fr";
+}
+
+#messageArea {
+  margin: 1em 0em 1em 0em;
+  padding: 0em 1em 0em 1em;
+  height: 14em;
+  width: auto;
+  background-color: black;
+  color: white;
+  font-size: 0.9em;
+  overflow: scroll;
+}
+
+pre {
+  line-height: 1.1;
+  font-family:'Courier New', Courier, monospace;
+  font-size: 0.9em;
+}
+
+#titleBar {
+  display: flex;
+  height: 1em;
+  font-size: 0.9em;
+  background-color: black;
+  color: white;
+  padding: 0.3em;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.dungeonRow {
   /* max-width: 40em; */
   background-color: blue;
   gap: 0em;
   width: min-content;
+  height: min-content;
+  /* overflow: hidden; */
 }
 
-.cell {
+.dungeonCell {
   
   /* Alignment of the cell contents */
   display: flex;
@@ -48,38 +94,48 @@ button:hover {
 
   /* Appearance of the cell itself */
   border-style: solid;
-  border-width: 1px;
-  border-color: white;
+  border-width: 0.5px;
+  border-color: gray;
   background-color: black;
   color: white;
-  font-size: 2em;
 
-  max-width: 3em;
-  min-width: 3em;
-  min-height: 3em;
-  max-height: 3em;
+  /* original */
+  font-size: 1em;
+  height: 1.5em;
+  width: 1.5em;
 }
 
-.cell:hover {
-  background-color: #202020;
+/* generic mouse cursor hover */
+.dungeonCell:hover {
+  background-color: #505050;
 }
 
+/* color of cell when we can move there */
 .canMoveTo:hover {
   background-color: green;
   cursor: move;
 }
 
+/* color of cell when we hover over a monster that is in range of our weapon */
 .monsterInRange:hover {
   background-color: red;
   cursor: "crosshair";
 }
 
+/* color of cell when we hover over a monster that is out of range */
 .monsterOutOfRange:hover {
   background-color: orange;
   cursor: "crosshair";
 }
 
+/* color of cell when we hover over treasure */
 .treasure:hover {
   background-color: yellow;
+  color: black;
   cursor: "pointer"; 
+}
+
+/* cells that are illuminated have a brighter background */
+.light {
+  background-color: #303030;
 }
