@@ -299,7 +299,8 @@ const entityTemplates = [
 
         startHp: 10,
         currentHp: 10,
-        maxHp: 10000,
+        maxHp: 10,
+        maxHpPerLevel: 10,
         
         startSightRange: 2.24,
         currentSightRange: 2.24,
@@ -346,7 +347,8 @@ const entityTemplates = [
 
         startHp: 6,
         currentHp: 6,
-        maxHp: 10000,
+        maxHp: 6,
+        maxHpPerLevel: 6,
         
         startSightRange: 3,
         currentSightRange: 3,
@@ -393,7 +395,8 @@ const entityTemplates = [
 
         startHp: 10,
         currentHp: 10,
-        maxHp: 10000,
+        maxHp: 10,
+        maxHpPerLevel: 10,
         
         startSightRange: 3,
         currentSightRange: 3,
@@ -439,8 +442,9 @@ const entityTemplates = [
         currentXp: 0,
 
         startHp: 10,
-        currentHp: 10,
-        maxHp: 10000,
+        currentHp: 5,
+        maxHp: 5,
+        maxHpPerLevel: 5,
         
         startSightRange: 3,
         currentSightRange: 3,
@@ -545,8 +549,8 @@ function entityGainsLevel(entity) {
     entity.level++;
 
     // Gain skill points to spend
-    entity.skillPoints += entity.skillPointsPerLevel;
-    console.log(`${entity.name} reaches level ${entity.level} and gains ${entity.skillPointsPerLevel}`);
+    entity.currentSkillPoints += entity.skillPointsPerLevel;
+    console.log(`${entity.name} reaches level ${entity.level} and gains ${entity.skillPointsPerLevel} skill points.`);
 }
 
 //=======================================================
@@ -1286,8 +1290,11 @@ playerCharacter().name = characterName;
 debugger;
 message(`Welcome to ASCII dungeon\n`);
 message(`Your character, ${playerCharacter().name}, is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
-message(`Your torch allows you to see up to ${Math.floor(playerCharacter().currentSightRange, 0)} squares away in the darkness.`);
-// message(`Welcome ${playerCharacter().name}\n. You rock!`);
+message(`You are level ${playerCharacter().currentLevel}, starting with ${playerCharacter().currentHp} hit points, and gain ${playerCharacter().maxHpPerLevel} per level.`);
+message(`You currently have ${playerCharacter().currentSkillPoints} skill points to spend, and gain ${playerCharacter().skillPointsPerLevel} per level.`);
+message(`Your torch allows you to see up to ${Math.floor(playerCharacter().currentSightRange, 0)} squares away in the darkness.\n`);
+
+message(`You are represented by the @ symbol on the map. You can move to any green square with your mouse.\n`);
 
 // Start the game loop
 window.requestAnimationFrame(gameLoop);
