@@ -1131,12 +1131,14 @@ function gameLoop() {
     if (clickX > -1 && clickY > -1) {
 
         // Log it
-        console.log(`user clicked (${clickY},${clickX})`);
+        // console.log(`user clicked (${clickY},${clickX})`);
 
         // if the player clicked on an entity
         let e = getEntityAtCell(clickY, clickX);
         if (e !== false) {
             console.log(`entity clicked on = ${e.name}`);
+
+            message(`You clicked on a ${e.name}, but the game doesn't allow interacting with a ${e.name} yet!`);
 
             switch (e.name) {
                 case 'treasure chest': {
@@ -1283,10 +1285,8 @@ playerCharacter().name = characterName;
 
 debugger;
 message(`Welcome to ASCII dungeon\n`);
-message(`Your character, ${playerCharacter().name} is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
-
-
-message(`Welcome ${playerCharacter().name}\n. You rock!`);
+message(`Your character, ${playerCharacter().name}, is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
+// message(`Welcome ${playerCharacter().name}\n. You rock!`);
 
 // Start the game loop
 window.requestAnimationFrame(gameLoop);
