@@ -819,7 +819,29 @@ function updatePossibleTileActions() {
 }
 
 //=================================================
-// Event handler
+// About Click Handler
+//=================================================
+
+function aboutClickHandler(event) {
+
+    // We handle all click events in this application
+    event.stopPropagation();
+
+    // Log the event we got clicked on
+    // console.log(`Event target ID = ${event.target.id}`);
+
+    // If event was the titleBar ...
+    if (event.target.id === 'titleBar')
+
+        // Popup about box
+        window.alert(
+            `Ascii Dungeon v0.01\n\n` +
+            `An unfinished game.\n`
+        );
+} 
+
+//=================================================
+// Main Event handler
 //=================================================
 
 // Global so the other game loop can read it
@@ -827,7 +849,7 @@ let clickX = -1;
 let clickY = -1;
 let clickB = -1;
 
-function handleClick(event) {
+function mainClickHandler(event) {
 
     // We handle all click events in this application
     event.stopPropagation();
@@ -977,8 +999,9 @@ function createHTMLBoard() {
     // Add title bar
     const titleBar = document.createElement('div');
     titleBar.id = 'titleBar';
-    titleBar.innerHTML = "ASCII Dungeon";
+    titleBar.innerHTML = "ASCII Dungeon v0.01 (click here for about info)";
     appDiv.appendChild(titleBar);
+    appDiv.addEventListener("click", aboutClickHandler);
 
     // Add a grid to hold the game board and the stat sheet
     const gameArea = document.createElement('div');
@@ -1053,7 +1076,7 @@ function createHTMLBoard() {
     gameArea.appendChild(messageArea);
 
     // Add mouse click event for the entire app
-    appDiv.addEventListener("click", handleClick);
+    appDiv.addEventListener("click", mainClickHandler);
 }
 
 let lastDistance = 100000000000;
@@ -1329,7 +1352,6 @@ function saveCharacterSheet() {
 
 // Check if character sheet changed
 function isCharacterSheetChanged() {
-    debugger;
     let identical = compareObjects(playerCharacter(), tempCharacterSheet);
     return (!identical);
 }
@@ -1422,7 +1444,7 @@ window.alert(
 openCharacterSheet();
 
 // Start game
-message(`Welcome to ASCII dungeon\n`);
+message(`Welcome to ASCII Dungeon\n`);
 message(`Your character, ${playerCharacter().name}, is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
 message(`You are level ${playerCharacter().currentLevel}, starting with ${playerCharacter().currentHp} hit points, and gain ${playerCharacter().maxHpPerLevel} hp per level.`);
 message(`You currently have ${playerCharacter().currentSkillPoints} skill points to spend, and gain ${playerCharacter().skillPointsPerLevel} skill point(s) per level.`);
@@ -1432,7 +1454,7 @@ message(`You are represented by the @ symbol on the map. You can move to any gre
 message(`Your torch illuminates ${Math.floor(playerCharacter().currentSightRange, 0)} squares around you, allowing you to see in the darkness around you.`);
 message(`The illuminated area is represented by the gray area on the map. Monsters and treasure lurk in the shadows.\n`);
 
-message(`Click on yourself (@) to open your character sheet\n`);
+message(`Click on yourself (@) to open your character sheet to change your name and spend skill points.\n`);
 
 
 // Start the game loop
