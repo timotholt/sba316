@@ -1286,6 +1286,7 @@ playerCharacter().name = characterName;
 debugger;
 message(`Welcome to ASCII dungeon\n`);
 message(`Your character, ${playerCharacter().name}, is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
+message(`Your torch allows you to see up to ${Math.floor(playerCharacter().currentSightRange, 0)} squares away in the darkness.`);
 // message(`Welcome ${playerCharacter().name}\n. You rock!`);
 
 // Start the game loop
