@@ -159,13 +159,6 @@ function getDivByCellAddress(buffer, row, col) {
 //===============================================================
 
 function changeHTMLCellText(buffer, row, col, text) {
-
-    if ((text === null) || (text.length <= 0)) {
-        console.log(`bad text in changehtmlcelltext`);
-        debugger;
-        return;
-    }
-
     getDivByCellAddress(buffer, row, col).innerHTML = text;
 }
 
@@ -192,8 +185,13 @@ function removeCssStyleFromCell(buffer, row, col, style) {
 //===============================================================
 
 function getEntityAtCell(row, col) {
+
+    // Big mess!
+    if ((typeof row === 'string') || (typeof col === 'string'))
+        debugger;
+
     for (let i = 0; i < entityList.length; i++)
-        if ((entityList[i].X === col) && (entityList[i].Y === row))
+        if ((Number(entityList[i].X) === Number(col)) && (Number(entityList[i].Y) === Number(row)))
             return (entityList[i]);
     return false;
 }
@@ -291,13 +289,13 @@ const entityTemplates = [
         currentHp: 10,
         maxHp: 10000,
         
-        startSightRange: 3,
-        currentSightRange: 3,
+        startSightRange: 2.99,
+        currentSightRange: 2.99,
         maxSightRange: 100,
         
         attackType: `sword`,
         attackMessage: `swings a sword`,
-        attackRange: 1.5,
+        attackRange: 1.42,
         attackDamage: 10,
 
         startSkillPoints: 10,
@@ -635,7 +633,7 @@ function drawEntityFromPlayerPov(entity) {
         changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, " " // blank.icon
             );
 
-            console.log(`blank @ (y=${entity.Y}, x=${entity.X})`);
+            // console.log(`blank @ (y=${entity.Y}, x=${entity.X})`);
         // if (musicStarted) {
         //     // Play man spotted
         //     cueManLost.currentTime = 0;
@@ -776,23 +774,17 @@ function handleClick(event) {
     // Use regular expression to match the numbers
     const matched = event.target.id.match(/^b(\d+)-r(\d+)-c(\d+)$/);
 
-    // If we matchd, we clicked on a proper cell
+    // If we matched, we clicked on a proper cell
     if (matched) {
 
-        // Get individual addresses components
-        clickB = matched[1];
-        clickY = matched[2];
-        clickX = matched[3];
+        // Get individual addresses components and convert to number
+        clickB = Number(matched[1]);
+        clickY = Number(matched[2]);
+        clickX = Number(matched[3]);
 
         // Debug
         console.log(`${event.target.id} (B ${clickB}, Y ${clickY}, X ${clickX}) was clicked:`, event);
     }
-
-    // Get the cell Y and Xumn that was clicked
-    // let indexX = event.target.id.indexOf(`c`);
-    // clickY = event.target.id.substring(1, indexX-1);
-    // clickX = event.target.id.substring(indexX+1);
-
 }
 
 //=========================================
@@ -1084,7 +1076,7 @@ function gameLoop() {
 
         // Log it
         console.log(`user clicked (${clickY},${clickX})`);
-
+debugger;
         // if the player clicked on an entity
         let e = getEntityAtCell(clickY, clickX);
         if (e !== false) {
@@ -1233,12 +1225,8 @@ while ((characterName === null) || characterName.length <= 0) {
 // Assign character name
 playerCharacter().name = characterName;
 
-drawAllEntities();
-drawBoard();
-updateOnHover();
-switchBuffer();
-
-// Start the game
+// Start the game loop
 window.requestAnimationFrame(gameLoop);
 
+// We never get here
 console.log(`goodbye world from sba316`);
