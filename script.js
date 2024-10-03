@@ -67,6 +67,7 @@ function compareObjects(o1, o2) {
     for(var p in o1){
         if(o1.hasOwnProperty(p)){
             if(o1[p] !== o2[p]){
+                debugger;
                 return false;
             }
         }
@@ -74,6 +75,7 @@ function compareObjects(o1, o2) {
     for(var p in o2){
         if(o2.hasOwnProperty(p)){
             if(o1[p] !== o2[p]){
+                debugger;
                 return false;
             }
         }
@@ -216,8 +218,8 @@ function removeCssStyleFromCell(buffer, row, col, style) {
 function getEntityAtCell(row, col) {
 
     // Big mess!
-    if ((typeof row === 'string') || (typeof col === 'string'))
-        debugger;
+    // if ((typeof row === 'string') || (typeof col === 'string'))
+    //     debugger;
 
     for (let i = 0; i < entityList.length; i++)
         if ((Number(entityList[i].X) === Number(col)) && (Number(entityList[i].Y) === Number(row)))
@@ -521,6 +523,7 @@ const entityTemplates = [
         startHp: 10,
         currentHp: 10,
         maxHp: 10000,
+        maxHpPerLevel: 10,
         
         startSightRange: 3,
         currentSightRange: 3,
@@ -1398,23 +1401,21 @@ function populateCharacterSheet() {
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
     _csInputCharacterName.value = tempCharacterSheet.name;
     const _csInputMaxHp = document.getElementById(`csInputMaxHp`);
-    _csInputMaxHp.value = tempCharacterSheet.maxHp;
+    _csInputMaxHp.value = Number(tempCharacterSheet.maxHp);
     const _csInputAttackDamage = document.getElementById(`csInputAttackDamage`);
-    _csInputAttackDamage.value = tempCharacterSheet.attackDamage;
-
-    debugger;
+    _csInputAttackDamage.value = Number(tempCharacterSheet.attackDamage);
 
     // Read only
     const _csCurrentLevel = document.getElementById(`csCurrentLevel`);
-    _csCurrentLevel.innerHTML = tempCharacterSheet.currentLevel;
+    _csCurrentLevel.innerHTML = Number(tempCharacterSheet.currentLevel);
     const _csCurrentXp = document.getElementById(`csCurrentXp`);
-    _csCurrentXp.innerHTML = tempCharacterSheet.currentXp;
+    _csCurrentXp.innerHTML = Number(tempCharacterSheet.currentXp);
     const _csNextLevelXp = document.getElementById(`csNextLevelXp`);
-    _csNextLevelXp.innerHTML = xpToNextLevel(tempCharacterSheet.currentXp);
+    _csNextLevelXp.innerHTML = Number(xpToNextLevel(tempCharacterSheet.currentXp));
 
     // Read only
     const _csCurrentSkillPoints = document.getElementById(`csCurrentSkillPoints`);
-    _csCurrentSkillPoints.value = tempCharacterSheet.currentSkillPoints;
+    _csCurrentSkillPoints.innerHTML = Number(tempCharacterSheet.currentSkillPoints);
 }
 
 function validateCharacterSheet() {
@@ -1422,13 +1423,13 @@ function validateCharacterSheet() {
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
     tempCharacterSheet.name = _csInputCharacterName.value;
     const _csInputMaxHp = document.getElementById(`csInputMaxHp`);
-    tempCharacterSheet.maxHp = _csInputMaxHp.value; 
+    tempCharacterSheet.maxHp = Number(_csInputMaxHp.value);
     const _csInputAttackDamage = document.getElementById(`csInputAttackDamage`);
-    tempCharacterSheet.attackDamage = _csInputAttackDamage.value;
+    tempCharacterSheet.attackDamage = Number(_csInputAttackDamage.value);
 
     // Save off skill points
     const _csCurrentSkillPoints = document.getElementById(`csCurrentSkillPoints`);
-    tempCharacterSheet.currentSkillPoints = _csCurrentSkillPoints.value;
+    tempCharacterSheet.currentSkillPoints = Number(_csCurrentSkillPoints.innerHTML);
 }
 
 function openCharacterSheet() {
@@ -1484,7 +1485,6 @@ window.onclick = function(event) {
 }
 
 //=============================
-debugger;
 initGameState();
 
 
