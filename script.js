@@ -766,7 +766,9 @@ function handleClick(event) {
 
     // We handle all click events in this application
     event.stopPropagation();
-    console.log(`Event target ID = ${event.target.id}`);
+
+    // Log the event we got clicked on
+    // console.log(`Event target ID = ${event.target.id}`);
 
     // If we got clicked, start the audio engine
     startAudioEngine();
@@ -1076,7 +1078,7 @@ function gameLoop() {
 
         // Log it
         console.log(`user clicked (${clickY},${clickX})`);
-debugger;
+
         // if the player clicked on an entity
         let e = getEntityAtCell(clickY, clickX);
         if (e !== false) {
@@ -1084,7 +1086,6 @@ debugger;
 
             switch (e.name) {
                 case 'treasure chest': {
-
                 }
                     break;
                 case 'monster': {
@@ -1100,7 +1101,7 @@ debugger;
         else {
 
             // If the distance is < 1.5, try to move there
-            if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.5) {
+            if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.42) {
 
                 // Yes it did!
                 console.log(`${gameLoopCount}: player moved from (${playerCharacter().Y},${playerCharacter().X}) to (${clickY},${clickX}).`);
