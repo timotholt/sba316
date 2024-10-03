@@ -185,11 +185,13 @@ function removeCssStyleFromCell(buffer, row, col, style) {
 //===============================================================
 
 function getEntityAtCell(row, col) {
-    for (let i = 0; i < entityList[i].length; i++)
-        if ((entityList[i].X === col) && (entityList[i].Y === row))
+    for (let i = 0; i < entityList.length; i++)
+        if ((entityList[i].X === col) && (entityList[i].Y === row)) {
+            // console.log(`entity found slot ${i} - ${entity[i].Y},${entity[i].X}`);
             return (entityList[i]);
+        }
+
     return null;
-    // return (terrainMap[row][col]);
 }
 
 //===============================================================
@@ -639,19 +641,33 @@ function drawEntityFromPlayerPov(entity) {
 
 function drawBoard() {
 
+    let blankSpots = 0;
+
     // Draw the game map
     for (let row = 0; row < gameHeight; row++)
-        for (let col = 0; col < gameWidth; col++)
-            if (!getEntityAtCell(row, col)) {
+        for (let col = 0; col < gameWidth; col++) {
+            let e = getEntityAtCell(row, col);
+
+            console.log(`e = ${e}`);
+
+            if (e === null) {
                 blank.X = row;
                 blank.Y = col;
                 drawEntityFromPlayerPov(blank);
+                blankSpots++;
             }
+        }
+
+    // Draw all entities on the board
+    drawAllEntities();
+
+    console.log(`drew ${blankSpots} blank spots`);
 }
 
 // Redraw the screen
 function drawAllEntities() {
-    
+    debugger;
+
     // Draw all entities
     for (let i = 1; i < entityList.length; i++) {
         console.log(`drawing entity[${i}] = ${entityList[i].name}`)
@@ -999,7 +1015,8 @@ function initGameState() {
     createLogicalGameBoard();
     createHTMLBoard();
     drawBoard();
-    drawAllEntities();
+    updateOnHover();
+    switchBuffer();
 
     // For proper audio cues
     lastDistance = 100000000000;
@@ -1103,7 +1120,6 @@ function gameLoop() {
         }
 
         // Draw all entities
-        drawAllEntities();
         drawBoard();
         updateOnHover();
         switchBuffer();
@@ -1219,6 +1235,7 @@ while ((characterName === null) || characterName.length <= 0) {
 playerCharacter().name = characterName;
 
 drawAllEntities();
+drawBoard();
 updateOnHover();
 switchBuffer();
 
