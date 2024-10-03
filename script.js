@@ -583,6 +583,16 @@ function entityGainsLevel(entity) {
 }
 
 //=======================================================
+//=======================================================
+
+function xpToNextLevel(xp) {
+    let i = 0;
+    for (; xp >= xpChart[i]; i++)
+        ;
+    return xpChart[i];
+}
+
+//=======================================================
 // Entity gains XP, check for level up
 //=======================================================
 
@@ -983,9 +993,13 @@ function message() {
         s += String(arguments[i]);
     }
 
+    // Add string to the message area
     messageText += s + `\n`;
     messageAreaSubDiv.innerHTML = messageText;
     messageArea.appendChild(messageAreaSubDiv);
+
+    // Move the scroll bar to the bottom so we can see the most current message
+    messageArea.scrollTop = messageArea.scrollHeight;
 }
 
 // Populate the screen by making divs and appending them over and over...
@@ -1357,6 +1371,7 @@ function isCharacterSheetChanged() {
 }
 
 function populateCharacterSheet() {
+debugger;
 
     // Copy character sheet to temporary one
     tempCharacterSheet = Object.assign({}, playerCharacter());
@@ -1364,12 +1379,30 @@ function populateCharacterSheet() {
     // Fill in fields into form
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
     _csInputCharacterName.value = tempCharacterSheet.name;
+
+    debugger;
+
+    // Read only
+    const _csCurrentLevel = document.getElementById(`csCurrentLevel`);
+    _csCurrentLevel.innerHTML = tempCharacterSheet.currentLevel;
+    const _csCurrentXp = document.getElementById(`csCurrentXp`);
+    _csCurrentXp.innerHTML = tempCharacterSheet.currentXp;
+    const _csNextLevelXp = document.getElementById(`csNextLevelXp`);
+    _csNextLevelXp.innerHTML = xpToNextLevel(tempCharacterSheet.currentXp);
+
+    // Read only
+    const _csCurrentSkillPoints = document.getElementById(`csCurrentSkillPoints`);
+    _csCurrentSkillPoints.value = tempCharacterSheet.currentSkillPoints;
 }
 
 function validateCharacterSheet() {
     // Save fields into temporary character sheet
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
     tempCharacterSheet.name = _csInputCharacterName.value;
+
+    // Save off skill points
+    const _csCurrentSkillPoints = document.getElementById(`csCurrentSkillPoints`);
+    tempCharacterSheet.currentSkillPoints = _csCurrentSkillPoints.value;
 }
 
 function openCharacterSheet() {

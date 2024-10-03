@@ -14,11 +14,11 @@ Running version at: https://timotholt.github.io/sba316/
 |Create at least one element using createElement.|5%|✅|
 |Use appendChild and/or prepend to add new elements to the DOM.|5%|✅|
 |Use the DocumentFragment interface or HTML templating with the cloneNode method to create templated content. |2%||
-|Modify the HTML or text content of at least one element in response to user interaction using innerHTML, innerText, or textContent.|10%||
+|Modify the HTML or text content of at least one element in response to user interaction using innerHTML, innerText, or textContent.|10%|✅|
 |Modify the style and/or CSS classes of an element in response to user interactions using the style or classList properties.|5%|✅|
-|Modify at least one attribute of an element in response to user interaction.|3%||
-|Register at least two different event listeners and create the associated event handler functions.|10%||
-|Use at least two Browser Object Model (BOM) properties or methods.|3%||
+|Modify at least one attribute of an element in response to user interaction.|3%|✅|
+|Register at least two different event listeners and create the associated event handler functions.|10%|✅|
+|Use at least two Browser Object Model (BOM) properties or methods.|3%|✅|
 |Include at least one form and/or input with HTML attribute validation.|5%||
 |Include at least one form and/or input with DOM event-based validation. (This can be the same form or input as the one above, but should include event-based validation in addition to the HTML attribute validation.)|5%||
 |Ensure that the program runs without errors (comment out things that do not work, and explain your blockers - you can still receive partial credit).|10%|✅|

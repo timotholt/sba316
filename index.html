@@ -30,6 +30,10 @@
   border: 1px solid #888;
   width: 80%;
   line-height: 1em;
+  /* display: flex;+ */
+
+  display:flex; 
+  flex-wrap:wrap;
 }
 
 /* The Close Button */
@@ -58,32 +62,46 @@
     <div class="modal-content">
       <span class="modalClose">&times;</span>
 
-      <label for="csInputCharacterName">Character Name</label>
-      <input  id="csInputCharacterName" type="text" pattern="^[a-zA-Z0-9]*$" value="$$$$$$$$$$$$" required />
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <label for="csInputCharacterName">Character Name</label>
+              <input  id="csInputCharacterName" type="text" pattern="^[a-zA-Z0-9]*$" value="PLACEHOLDER" required />
+              <div style="display:flex">Level: <div id="csCurrentLevel"></div> XP: <div id="csCurrentXp"></div> (<div id="csNextLevelXp"></div> needed for next level)</div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="csInputRace">Race</label>
+              <select id="csInputRace">
+                <option>Human</option>
+                <option>Monster</option>
+                <option>Goblin</option>
+                <option>Treasure</option>
+              </select>
+              <label for="csInputClass">Class</label>
+              <select id="csInputClass">
+                <option>Fighter</option>
+                <option>Mage</option>
+                <option>Cleric</option>
+                <option>Thief</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label for="csInputStrength">Strength</label>
+              <input  id="csInputStrength" type="number" min=1 max=1000 value="9999" required />
 
-      <label for="csInputRace">Race</label>
-      <select id="csInputRace">
-        <option>Human</option>
-        <option>Monster</option>
-        <option>Goblin</option>
-        <option>Treasure</option>
-      </select>
+              <label for="csInputMaxHp">Max Hp</label>
+              <input  id="csInputMaxHp" type="number" min=1 max=1000 value="9999" required />
 
-      <label for="csInputClass">Class</label>
-      <select id="csInputClass">
-        <option>Fighter</option>
-        <option>Mage</option>
-        <option>Cleric</option>
-        <option>Thief</option>
-      </select>
-
-      <label for="csInputMaxHp">Max Hp</label>
-      <input  id="csInputMaxHp" type="number" min=1 max=1000 value="" required />
-
-      <div id="csCurrentLevel">Level</div>
-      <div id="csSkillPointsLeft">Skill Points Left</div>
-
-      
+              <div>Skill Points Left: </div><div id="csCurrentSkillPoints"></div></div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
       <!-- <div class="">Character Sheet</div>
