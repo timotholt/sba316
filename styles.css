@@ -3,8 +3,10 @@ body {
   color: #232323;
   line-height: 10px;
   font-size: 20px;
-  font-family: sans-serif;
+  /* font-family: sans-serif; */
   padding: 25px 50px;
+
+  font-family: "Courier New", Courier, monospace;
 }
 
 code {

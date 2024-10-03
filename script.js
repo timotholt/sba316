@@ -67,7 +67,7 @@ function compareObjects(o1, o2) {
     for(var p in o1){
         if(o1.hasOwnProperty(p)){
             if(o1[p] !== o2[p]){
-                debugger;
+                // debugger;
                 return false;
             }
         }
@@ -75,7 +75,7 @@ function compareObjects(o1, o2) {
     for(var p in o2){
         if(o2.hasOwnProperty(p)){
             if(o1[p] !== o2[p]){
-                debugger;
+                // debugger;
                 return false;
             }
         }
@@ -1115,9 +1115,7 @@ function createHTMLBoard() {
     appDiv.addEventListener("click", mainClickHandler);
 }
 
-let lastDistance = 100000000000;
-
-
+// Get the entity that represents the character
 function playerCharacter() {
     return (entityList[0]);
 }
@@ -1222,7 +1220,6 @@ function gameLoop() {
 
             // Open character sheet
             openCharacterSheet();
-
 
             // Reset user click buttons
             clickB = clickY = clickX = -1;
@@ -1351,9 +1348,9 @@ function validateVolume() {
     // If x is Not a Number or less than one or greater than 10
     let text;
     if (isNaN(x) || x < 1 || x > 10) {
-      text = "Input not valid";
+        text = "Input not valid";
     } else {
-      text = "Input OK";
+        text = "Input OK";
     }
     // document.getElementById("demo").innerHTML = text;
 }
@@ -1365,21 +1362,31 @@ function validateVolume() {
 // Get the modal
 var csModal = document.getElementById("characterSheet");
 
-// Get the button that opens the modal
-//var btn = document.getElementById("myBtn");
-
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("modalClose")[0];
-
-// When the user clicks the button, open the modal 
-// btn.onclick = function() {
-//   csModal.style.display = "block";
-// }
 
 //===========================
 //===========================
 
 let tempCharacterSheet = {};    
+
+//===========================
+// HP event listener
+//===========================
+
+
+
+// let lastHp = e.target.value;
+// let last
+// const input = document.querySelector('input');
+// input.addEventListener('input', (e) => {
+//   if (e.target.value > 12) {
+//     e.target.value = 0
+//   }
+//   if (e.target.value < 0) {
+//     e.target.value = 12
+//   }
+// })
 
 // Save character sheet
 function saveCharacterSheet() {
@@ -1443,6 +1450,7 @@ function openCharacterSheet() {
 
 //====================================================
 //====================================================
+
 function checkCsForChangesAndSaveAccordingly() {
 
     // Load temp character sheet from form
