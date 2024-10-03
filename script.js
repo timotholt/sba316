@@ -686,8 +686,8 @@ function drawEntityFromPlayerPov(entity) {
 
         if (musicStarted) {
             // Play man spotted
-            cueManSpotted.currentTime = 0;
-            cueManSpotted.play();                    
+            // cueManSpotted.currentTime = 0;
+            // cueManSpotted.play();                    
         }
     }
 
