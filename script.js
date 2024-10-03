@@ -978,16 +978,27 @@ function createLogicalGameBoard() {
 // message()
 //
 // The game has it's own console.  You output messages to the
-// player here.
+// player here.  We use the ('pre') style so that \n works!
 //=================================================================
 
-let messageArea ;
-const messageAreaSubDiv = document.createElement('pre');
+
+//=================================================================
+// messageText
+//
+// One super-long string that represents *every single thing* sent
+// to the message area.
+//
+// This will eventually run out of memory but it works for this SBA
+//=================================================================
+
 let messageText = '';
 
 function message() {
 
-    // (Tim) - Grab all the arguments and convert it to one long string
+    const messageArea = document.getElementById(`messageArea`);
+    const messageAreaSubDiv = document.getElementById('messageAreaSubDiv');
+
+    // Grab all the arguments and convert it to one long string
     let s = '';
     for (i = 0; i < arguments.length; i++) {
         s += String(arguments[i]);
@@ -996,7 +1007,6 @@ function message() {
     // Add string to the message area
     messageText += s + `\n`;
     messageAreaSubDiv.innerHTML = messageText;
-    messageArea.appendChild(messageAreaSubDiv);
 
     // Move the scroll bar to the bottom so we can see the most current message
     messageArea.scrollTop = messageArea.scrollHeight;
@@ -1084,10 +1094,15 @@ function createHTMLBoard() {
         gameArea.appendChild(bufferDiv);
     }
 
-    // Add message area
-    messageArea = document.createElement(`div`);
-    messageArea.id = 'messageArea';
-    gameArea.appendChild(messageArea);
+    // Create the message area
+    {
+        let messageArea = document.createElement(`div`);
+        messageArea.id = 'messageArea';
+        gameArea.appendChild(messageArea);
+        let messageAreaSubDiv = document.createElement('pre');
+        messageAreaSubDiv.id = 'messageAreaSubDiv';
+        messageArea.appendChild(messageAreaSubDiv);
+    }
 
     // Add mouse click event for the entire app
     appDiv.addEventListener("click", mainClickHandler);
