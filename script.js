@@ -58,6 +58,30 @@ const randY = () => randomInt(gameHeight);
 const randX = () => randomInt(gameWidth);
 
 //===============================================================
+// compareObjects()
+//
+// take 2 objects and make sure they have the same key/value pairs
+//===============================================================
+
+function compareObjects(o1, o2) {
+    for(var p in o1){
+        if(o1.hasOwnProperty(p)){
+            if(o1[p] !== o2[p]){
+                return false;
+            }
+        }
+    }
+    for(var p in o2){
+        if(o2.hasOwnProperty(p)){
+            if(o1[p] !== o2[p]){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+//===============================================================
 // switchBuffer()
 //
 // To make updating the screen easier and not keep track of old
@@ -827,11 +851,6 @@ function handleClick(event) {
 
         // Debug
         console.log(`${event.target.id} (B ${clickB}, Y ${clickY}, X ${clickX}) was clicked:`, event);
-
-        // If player clicked on himself, do nothing
-        if (clickX === playerCharacter().X && clickY === playerCharacter().Y) {
-            clickB = clickY = clickX = -1;
-        }
     }
 }
 
@@ -1050,9 +1069,9 @@ function initPlayerCharacter() {
     // Make player a fighter and visible
     entityList[0] = Object.assign({}, entityTemplates[0]);
     entityList[0].icon = '@';                                   // just like hack and nethack
-    entityList[0].name = 'Player';
+    entityList[0].name = 'Man With No Name';
     entityList[0].gold = 0;
-    entityList[0].pc = true;
+    entityList[0].playerCharacter = true;
 
     // Return player entity
     return (entityList[0]);
@@ -1138,39 +1157,51 @@ function gameLoop() {
 
         // Log it
         // console.log(`user clicked (${clickY},${clickX})`);
+        
+        // If player clicked on himself, open character sheet
+        if (clickX === playerCharacter().X && clickY === playerCharacter().Y) {
 
-        // if the player clicked on an entity
-        let e = getEntityAtCell(clickY, clickX);
-        if (e !== false) {
-            console.log(`entity clicked on = ${e.name}`);
+            // Open character sheet
+            openCharacterSheet();
 
-            message(`You clicked on a ${e.name} (${e.icon}), but the game doesn't allow interacting with a ${e.name} yet!`);
 
-            switch (e.name) {
-                case 'treasure chest': {
-                }
-                    break;
-                case 'monster':
-                case 'human': {
-                    // Calculate attacker
-                    // Calculate defender
-                    // attacker attacks defender
-                    break;
+            // Reset user click buttons
+            clickB = clickY = clickX = -1;
+        }
+        else {
+            // if the player clicked on an entity
+            let e = getEntityAtCell(clickY, clickX);
+            if (e !== false) {
+                console.log(`entity clicked on = ${e.name}`);
+
+                message(`You clicked on a ${e.name} (${e.icon}), but the game doesn't allow interacting with a ${e.name} yet!`);
+
+                switch (e.name) {
+                    case 'treasure chest': {
+                    }
+                        break;
+                    case 'monster':
+                    case 'human': {
+                        // Calculate attacker
+                        // Calculate defender
+                        // attacker attacks defender
+                        break;
+                    }
                 }
             }
-        }
-        
-        // If the cell is blank, try to move there
-        else {
+            
+            // If the cell is blank, try to move there
+            else {
 
-            // If the distance is < 1.5, try to move there
-            if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.42) {
+                // If the distance is < 1.5, try to move there
+                if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.42) {
 
-                // Yes it did!
-                console.log(`${gameLoopCount}: player moved from (${playerCharacter().Y},${playerCharacter().X}) to (${clickY},${clickX}).`);
+                    // Yes it did!
+                    console.log(`${gameLoopCount}: player moved from (${playerCharacter().Y},${playerCharacter().X}) to (${clickY},${clickX}).`);
 
-                // Move there
-                moveEntity(playerCharacter(), clickY, clickX);
+                    // Move there
+                    moveEntity(playerCharacter(), clickY, clickX);
+                }
             }
         }
 
@@ -1255,8 +1286,133 @@ function gameLoop() {
     window.requestAnimationFrame(gameLoop);
 }
 
-//=============================
+function validateVolume() {
+    // Get the value of the input field with id="numb"
+    let x = document.getElementById("volume").value;
+    // If x is Not a Number or less than one or greater than 10
+    let text;
+    if (isNaN(x) || x < 1 || x > 10) {
+      text = "Input not valid";
+    } else {
+      text = "Input OK";
+    }
+    // document.getElementById("demo").innerHTML = text;
+}
 
+//==============================================
+// characterSheet modal dialog box
+//==============================================
+
+// Get the modal
+var csModal = document.getElementById("characterSheet");
+
+// Get the button that opens the modal
+//var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("modalClose")[0];
+
+// When the user clicks the button, open the modal 
+// btn.onclick = function() {
+//   csModal.style.display = "block";
+// }
+
+//===========================
+//===========================
+
+let tempCharacterSheet = {};    
+
+// Save character sheet
+function saveCharacterSheet() {
+    entityList[0] = Object.assign({}, tempCharacterSheet);
+}
+
+// Check if character sheet changed
+function isCharacterSheetChanged() {
+    debugger;
+    let identical = compareObjects(playerCharacter(), tempCharacterSheet);
+    return (!identical);
+}
+
+function populateCharacterSheet() {
+
+    // Copy character sheet to temporary one
+    tempCharacterSheet = Object.assign({}, playerCharacter());
+
+    // Fill in fields into form
+    const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
+    _csInputCharacterName.value = tempCharacterSheet.name;
+}
+
+function validateCharacterSheet() {
+    // Save fields into temporary character sheet
+    const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
+    tempCharacterSheet.name = _csInputCharacterName.value;
+}
+
+function openCharacterSheet() {
+
+    // Populate the form with values from the game
+    populateCharacterSheet();
+
+    // Open character sheet
+    csModal.style.display = "block";
+}
+
+//========================================================
+// Close modal method 1:
+//
+// When the user clicks on <span> (x), close the modal
+//========================================================
+
+span.onclick = function() {
+
+    // Load temp character sheet from form
+    validateCharacterSheet();
+
+    // If character sheet changed, prompt user
+    if (isCharacterSheetChanged()) {
+        let result = window.confirm(`Save changes?`);
+        if (result) {
+            saveCharacterSheet();
+            message(`Changes to character sheet saved.`);
+        } else {
+            message(`Changes to character sheet canceled.`);
+        }
+    }
+
+    csModal.style.display = "none";
+}
+
+//========================================================
+// Close modal method 2:
+//
+// When the user clicks anywhere outside of the modal, close it
+//========================================================
+
+window.onclick = function(event) {
+    if (event.target === csModal) {
+
+        // Load temp character sheet from form
+        validateCharacterSheet();
+
+        // If character sheet changed, prompt user
+        if (isCharacterSheetChanged()) {
+            let result = window.confirm(`Save changes?`);
+            if (result) {
+                saveCharacterSheet();
+                message(`Changes to character sheet saved.`);
+            } else {
+                message(`Changes to character sheet canceled.`);
+            }
+        }
+
+        csModal.style.display = "none";
+    }
+}
+
+//=============================
+debugger;
 initGameState();
 
 
@@ -1266,38 +1422,27 @@ initGameState();
 
 // // Show the instructions
 window.alert(
-    `Dungeon!\n\n` +
-    `.\n\n` +
-    `Click a box to move your character ${playerCharacter().icon} through the dangerous lands.\n`
+    `ASCII Dungeon!\n\n` +
+    `An unfinished adventure game.\n\n` +
+    `The first step is to make your character.\n`
 );
 
-window.alert(
-    `Dungeon!\n\n` +
-    `Note: You can only move one square at a time.`
-    // `water ${wave} or rocks ${island}. Steer around them.\n\n`
-);
+// Open character sheet
+openCharacterSheet();
 
-// Get character's name
-let characterName = null;
-while ((characterName === null) || characterName.length <= 0) {
-    characterName = prompt("What's your character's name?", "Conan");
-
-    if ((characterName === null) || characterName.length <= 0)
-        window.alert("Character name can't be blank!");
-}
-
-// Assign character name
-playerCharacter().name = characterName;
-
-debugger;
+// Start game
 message(`Welcome to ASCII dungeon\n`);
 message(`Your character, ${playerCharacter().name}, is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
 message(`You are level ${playerCharacter().currentLevel}, starting with ${playerCharacter().currentHp} hit points, and gain ${playerCharacter().maxHpPerLevel} hp per level.`);
 message(`You currently have ${playerCharacter().currentSkillPoints} skill points to spend, and gain ${playerCharacter().skillPointsPerLevel} skill point(s) per level.`);
-message(`Your torch allows you to see up to ${Math.floor(playerCharacter().currentSightRange, 0)} squares away in the darkness.\n`);
 
 message(`The game has generated ${numEntities} entities and placed them randomly in the dungeon.`);
 message(`You are represented by the @ symbol on the map. You can move to any green square with your mouse.\n`);
+message(`Your torch illuminates ${Math.floor(playerCharacter().currentSightRange, 0)} squares around you, allowing you to see in the darkness around you.`);
+message(`The illuminated area is represented by the gray area on the map. Monsters and treasure lurk in the shadows.\n`);
+
+message(`Click on yourself (@) to open your character sheet\n`);
+
 
 // Start the game loop
 window.requestAnimationFrame(gameLoop);
