@@ -1359,13 +1359,9 @@ function openCharacterSheet() {
     csModal.style.display = "block";
 }
 
-//========================================================
-// Close modal method 1:
-//
-// When the user clicks on <span> (x), close the modal
-//========================================================
-
-span.onclick = function() {
+//====================================================
+//====================================================
+function checkCsForChangesAndSaveAccordingly() {
 
     // Load temp character sheet from form
     validateCharacterSheet();
@@ -1380,7 +1376,16 @@ span.onclick = function() {
             message(`Changes to character sheet canceled.`);
         }
     }
+}
 
+//========================================================
+// Close modal method 1:
+//
+// When the user clicks on <span> (x), close the modal
+//========================================================
+
+span.onclick = function() {
+    checkCsForChangesAndSaveAccordingly();
     csModal.style.display = "none";
 }
 
@@ -1392,21 +1397,7 @@ span.onclick = function() {
 
 window.onclick = function(event) {
     if (event.target === csModal) {
-
-        // Load temp character sheet from form
-        validateCharacterSheet();
-
-        // If character sheet changed, prompt user
-        if (isCharacterSheetChanged()) {
-            let result = window.confirm(`Save changes?`);
-            if (result) {
-                saveCharacterSheet();
-                message(`Changes to character sheet saved.`);
-            } else {
-                message(`Changes to character sheet canceled.`);
-            }
-        }
-
+        checkCsForChangesAndSaveAccordingly();
         csModal.style.display = "none";
     }
 }
