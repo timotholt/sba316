@@ -109,11 +109,11 @@ function switchBuffer(buffer = -1) {
     // Erase the text of the offscreen and hover buffer
     for (let row = 0; row < gameHeight; row++)
         for (let col = 0; col < gameWidth; col++) {
-            changeHTMLCellText(offScreenBuffer, row, col, null);
+            changeHTMLCellText(offScreenBuffer, row, col, '');
 
             // Remove all existing CSS hover styles
-            for (let n = 0; n < hoverStyles.length; n++)
-                removeCssStyleFromCell(offScreenBuffer, row, col, hoverStyles[n]);                
+            // for (let n = 0; n < hoverStyles.length; n++)
+                // removeCssStyleFromCell(offScreenBuffer, row, col, hoverStyles[n]);                
     }
 }
 
@@ -159,6 +159,13 @@ function getDivByCellAddress(buffer, row, col) {
 //===============================================================
 
 function changeHTMLCellText(buffer, row, col, text) {
+
+    if ((text === null) || (text.length <= 0)) {
+        console.log(`bad text in changehtmlcelltext`);
+        debugger;
+        return;
+    }
+
     getDivByCellAddress(buffer, row, col).innerHTML = text;
 }
 
@@ -186,12 +193,9 @@ function removeCssStyleFromCell(buffer, row, col, style) {
 
 function getEntityAtCell(row, col) {
     for (let i = 0; i < entityList.length; i++)
-        if ((entityList[i].X === col) && (entityList[i].Y === row)) {
-            // console.log(`entity found slot ${i} - ${entity[i].Y},${entity[i].X}`);
+        if ((entityList[i].X === col) && (entityList[i].Y === row))
             return (entityList[i]);
-        }
-
-    return null;
+    return false;
 }
 
 //===============================================================
@@ -595,7 +599,7 @@ function entityAttacksEntity(attacker, defender) {
 // Draw the entity on the board, taking distance from the player into account
 function drawEntityFromPlayerPov(entity) {
 
-    console.log(`drawing ${entity} = ${entity.name}`);
+    // console.log(`drawing ${entity} = ${entity.name} at ${entity.Y},${entity.X}`);
 
     // if entity is invalid, skip it {
     if ((!entity) || (entity.X < 0) || (entity.Y < 0) || (!entity.icon)) {
@@ -631,6 +635,7 @@ function drawEntityFromPlayerPov(entity) {
         changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, " " // blank.icon
             );
 
+            console.log(`blank @ (y=${entity.Y}, x=${entity.X})`);
         // if (musicStarted) {
         //     // Play man spotted
         //     cueManLost.currentTime = 0;
@@ -639,38 +644,32 @@ function drawEntityFromPlayerPov(entity) {
     }
 }
 
+// Draw the entire game board
 function drawBoard() {
-
-    let blankSpots = 0;
 
     // Draw the game map
     for (let row = 0; row < gameHeight; row++)
         for (let col = 0; col < gameWidth; col++) {
             let e = getEntityAtCell(row, col);
 
-            console.log(`e = ${e}`);
-
-            if (e === null) {
-                blank.X = row;
-                blank.Y = col;
+            // If there is no entity there, draw a blank spot
+            if (e === false) {
+                blank.X = col;
+                blank.Y = row;
                 drawEntityFromPlayerPov(blank);
-                blankSpots++;
             }
         }
 
     // Draw all entities on the board
     drawAllEntities();
-
-    console.log(`drew ${blankSpots} blank spots`);
 }
 
 // Redraw the screen
 function drawAllEntities() {
-    debugger;
 
-    // Draw all entities
+    // Draw all entities other than the player
     for (let i = 1; i < entityList.length; i++) {
-        console.log(`drawing entity[${i}] = ${entityList[i].name}`)
+        // console.log(`drawing entity[${i}] = ${entityList[i].name}`)
         drawEntityFromPlayerPov(entityList[i]);
     }
 
@@ -811,7 +810,7 @@ function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
         let e = getEntityAtCell(y, x);
 
         // See if there is an entity already at this X/y
-        if (e)
+        if (e !== false)
             continue;
 
         // // If it's empty...
@@ -832,18 +831,18 @@ function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
 function createLogicalGameBoard() {
 
 
-    // function makeBlankMap() {
-    //     // Make a blank map
-    //     for (let Y = 0; Y < gameHeight; Y++) {
-    //         terrainMap[Y] = [];
-    //         for (let X = 0; X < gameWidth; X++) {
-    //             terrainMap[Y][X] = blank;
-    //         }
-    //     }
-    // }
+    function makeBlankMap() {
+        // Make a blank map
+        for (let Y = 0; Y < gameHeight; Y++) {
+            terrainMap[Y] = [];
+            for (let X = 0; X < gameWidth; X++) {
+                terrainMap[Y][X] = '';
+            }
+        }
+    }
 
-    // // Build a map full of blank objects
-    // makeBlankMap();
+    // Build a map full of blank objects
+    makeBlankMap();
 
     // Create the player character
     initPlayerCharacter();
@@ -1084,11 +1083,11 @@ function gameLoop() {
     if (clickX > -1 && clickY > -1) {
 
         // Log it
-        console.log(`user clicked (${clickX},${clickY})`);
+        console.log(`user clicked (${clickY},${clickX})`);
 
         // if the player clicked on an entity
         let e = getEntityAtCell(clickY, clickX);
-        if (e) {
+        if (e !== false) {
             console.log(`entity clicked on = ${e.name}`);
 
             switch (e.name) {
