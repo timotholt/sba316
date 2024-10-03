@@ -51,6 +51,7 @@ button:hover {
   margin: 1em 0em 1em 0em;
   padding: 0em 1em 0em 1em;
   height: 14em;
+  /* width: 50px; */
   width: auto;
   background-color: black;
   color: white;

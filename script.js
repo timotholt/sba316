@@ -28,8 +28,13 @@ const cueMovingAway   = new Audio(`./farsonar.mp3`);
 const cueMovingCloser = new Audio(`./closesonar.mp3`);
 
 // force window to be a certain size
-let gameHeight = 10;
-let gameWidth = 10;
+const gameHeight = 10;
+const gameWidth = 40;
+
+// # of entities (monsters / treasure) is based upon window size
+const entityList = [];
+let numEntities = (gameHeight * gameWidth) / 10;
+
 // window.resizeTo(gameWidth, gameHeight);
 
 // Map and map symbols
@@ -1034,9 +1039,6 @@ function createHTMLBoard() {
 
 let lastDistance = 100000000000;
 
-// Objects in the world
-const entityList = [];
-const numEntities = (gameHeight * gameHeight) / 10;
 
 function playerCharacter() {
     return (entityList[0]);
@@ -1142,7 +1144,7 @@ function gameLoop() {
         if (e !== false) {
             console.log(`entity clicked on = ${e.name}`);
 
-            message(`You clicked on a ${e.name}, but the game doesn't allow interacting with a ${e.name} yet!`);
+            message(`You clicked on a ${e.name} (${e.icon}), but the game doesn't allow interacting with a ${e.name} yet!`);
 
             switch (e.name) {
                 case 'treasure chest': {
@@ -1290,10 +1292,11 @@ playerCharacter().name = characterName;
 debugger;
 message(`Welcome to ASCII dungeon\n`);
 message(`Your character, ${playerCharacter().name}, is a ${playerCharacter().characterClass} ${playerCharacter().subClass}.`);
-message(`You are level ${playerCharacter().currentLevel}, starting with ${playerCharacter().currentHp} hit points, and gain ${playerCharacter().maxHpPerLevel} per level.`);
-message(`You currently have ${playerCharacter().currentSkillPoints} skill points to spend, and gain ${playerCharacter().skillPointsPerLevel} per level.`);
+message(`You are level ${playerCharacter().currentLevel}, starting with ${playerCharacter().currentHp} hit points, and gain ${playerCharacter().maxHpPerLevel} hp per level.`);
+message(`You currently have ${playerCharacter().currentSkillPoints} skill points to spend, and gain ${playerCharacter().skillPointsPerLevel} skill point(s) per level.`);
 message(`Your torch allows you to see up to ${Math.floor(playerCharacter().currentSightRange, 0)} squares away in the darkness.\n`);
 
+message(`The game has generated ${numEntities} entities and placed them randomly in the dungeon.`);
 message(`You are represented by the @ symbol on the map. You can move to any green square with your mouse.\n`);
 
 // Start the game loop
