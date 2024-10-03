@@ -555,13 +555,13 @@ const entityTemplates = [
 // make a new character from character class
 //=======================================================
 
-function newCharacter(character, charClass) {
+function newCharacter(character, characterClass) {
 
     // Search through all entity types
     for (let i = 0; i < entityTemplates.length; i++) {
 
         // If we found the correct class
-        if (charClass === entityTemplates.name)
+        if (characterClass === entityTemplates.name)
 
         // Copy character from template
             character = entity;
@@ -631,8 +631,8 @@ function entityAttacksEntity(attacker, defender) {
     // Make sure distance is in range
     if (distanceBetweenEntities(attacker, defender))
 
-        // Subtract attacker's strength from hit points
-        defender.hp -= attacker.strength;
+        // Subtract attacker's damage from hit points
+        defender.hp -= attacker.attackDamage;
 
         // Let player know who attacks who
         console.log(`${attacker.name} ${attacker.attackMethod} ${defender.name}`);
@@ -782,6 +782,10 @@ function updatePossibleTileActions() {
                 removeCssStyleFromCell(offScreenBuffer, y, x, "light");
             }
 
+            // If we are the same location as the player, skip it
+            if (y === playerCharacter().Y && x === playerCharacter().X)
+                continue; 
+
             // If square(x,y) is visible to the player
             if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
 
@@ -791,7 +795,7 @@ function updatePossibleTileActions() {
                 // If there is an entity at that square
                 if (e) {
                     // Figure out what kind of entity is in that square
-                    switch (e.charClass) {
+                    switch (e.characterClass) {
 
                         // Some kind of monster
                         case 'monster':
@@ -1386,7 +1390,6 @@ function isCharacterSheetChanged() {
 }
 
 function populateCharacterSheet() {
-debugger;
 
     // Copy character sheet to temporary one
     tempCharacterSheet = Object.assign({}, playerCharacter());
@@ -1394,6 +1397,10 @@ debugger;
     // Fill in fields into form
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
     _csInputCharacterName.value = tempCharacterSheet.name;
+    const _csInputMaxHp = document.getElementById(`csInputMaxHp`);
+    _csInputMaxHp.value = tempCharacterSheet.maxHp;
+    const _csInputAttackDamage = document.getElementById(`csInputAttackDamage`);
+    _csInputAttackDamage.value = tempCharacterSheet.attackDamage;
 
     debugger;
 
@@ -1414,6 +1421,10 @@ function validateCharacterSheet() {
     // Save fields into temporary character sheet
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
     tempCharacterSheet.name = _csInputCharacterName.value;
+    const _csInputMaxHp = document.getElementById(`csInputMaxHp`);
+    tempCharacterSheet.maxHp = _csInputMaxHp.value; 
+    const _csInputAttackDamage = document.getElementById(`csInputAttackDamage`);
+    tempCharacterSheet.attackDamage = _csInputAttackDamage.value;
 
     // Save off skill points
     const _csCurrentSkillPoints = document.getElementById(`csCurrentSkillPoints`);
