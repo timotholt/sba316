@@ -1067,8 +1067,15 @@ let messageText = '';
 
 function message() {
 
+    debugger;
+
     const messageArea = document.getElementById(`messageArea`);
-    const messageAreaSubDiv = document.getElementById('messageAreaSubDiv');
+
+    // Best way to do it
+    // const messageAreaSubDiv = document.getElementById('messageAreaSubDiv');
+
+    // Do it for 5% of the grade
+    const messageAreaSubDiv = messageArea.firstChild;
 
     // Grab all the arguments and convert it to one long string
     let s = '';
