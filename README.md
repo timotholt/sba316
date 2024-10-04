@@ -6,7 +6,6 @@ Running version at: https://timotholt.github.io/sba316/
 
 | Requirement | Percentage Finished |
 | :--- | :---: | :---: |
-
 |Cache at least one element using getElementById.|5%|✅|
 |Cache at least one element using querySelector or querySelectorAll.|5%|✅|
 |Use the parent-child-sibling relationship to navigate between elements at least once (firstChild, lastChild, parentNode, nextElementSibling, etc.).|5%|✅|
