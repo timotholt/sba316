@@ -1,137 +1,129 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>SBA316</title>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="./styles.css" />
+    <head>
+        <title>SBA316</title>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="./styles.css" />
 
-    <style>
-      /* The Modal (background) */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
-  left: 0;
-  top: 0;
-  /* width: 100%; Full width */
-  width: 50%;
-  height: 50%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
+        <style>
+            /* The Modal (background) */
+            .modal {
+                display: none; /* Hidden by default */
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                padding-top: 200px; /* Location of the box */
+                padding-left: 200px;
+                left: 0;
+                top: 0;
+                /* width: 100%; Full width */
+                width: 50%;
+                height: min-content;
+                /* height: 50%; */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgb(0,0,0); /* Fallback color */
+                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            }
 
-/* Modal Content */
-.modal-content {
-  /* background-color: #fefefe; */
-  background-color: black;
-  color: white;
+            /* Modal Content */
+            .modal-content {
+                /* background-color: #fefefe; */
+                background-color: black;
+                color: white;
 
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  line-height: 1em;
-  /* display: flex;+ */
+                margin: auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                line-height: 1em;
+                display:flex; 
+                flex-wrap:wrap;
+            }
 
-  display:flex; 
-  flex-wrap:wrap;
-}
+            /* The Close Button */
+            .modalClose {
+                color: #aaaaaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
 
-/* The Close Button */
-.modalClose {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
+            .modalClose:hover,
+            .modalClose:focus {
+                color: #000;
+                text-decoration: none;
+                cursor: pointer;
+            }
 
-.modalClose:hover,
-.modalClose:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-    </style>
-  </head>
+            /* */
+            .csGrid {  display: grid;
+                font-size: 0.8em;
+                grid-template-columns: 1.4fr 1.4fr 0.2fr 1.4fr 1.4fr;
+                grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+                gap: 20px 20px;
+                grid-auto-flow: row;
+                grid-template-areas:
+                  "csTitle csTitle csTitle csTitle csClose"
+                  "csRace csRase . csClass csClass"
+                  "csLevel csXp csXp csXp csXp"
+                  "csMaxHp csMaxHp . csMaxDmg csMaxDmg"
+                  "csSkillPoints csSkillPoints csSkillPoints csSkillPoints csSkillPoints";
+            }
 
-  <body>
+            .csTitle { grid-area: csTitle; display: flex; justify-content: space-between; height: 1.5em; }
+            .csClose { grid-area: csClose; display: flex; height: 1.5em; justify-content: right;}
+            .csRace { grid-area: csRace; display: flex; height: 1.5em; }
+            .csClass { grid-area: CsClass; display: flex; height: 1.5em; }
+            .csLevel { grid-area: csLevel; display: flex; height: 1.5em; }
+            .csXp { grid-area: csXp; display: flex; height: 1.5em; }
+            .csMaxHp { grid-area: csMaxHp; display: flex; height: 1.5em; }
+            .csMaxDmg { grid-area: csMaxDmg; display: flex; height: 1.5em; }
+            .csSkillPoints { grid-area: csSkillPoints; display: flex; height: 1.5em; }
 
-  <!-- Character Sheet -->
-  <div id="characterSheet" class="modal">
+            .buttonClass { width: 10em; font-size: 0.8em; font-family: 'Courier New', Courier, monospace; }
+        </style>
+    </head>
+    <body>
 
-    <!-- Modal content -->
-    <div class="modal-content">
-      <span class="modalClose">&times;</span>
+    <!-- Character Sheet -->
+    <div id="characterSheet" class="modal">
 
-      <table>
-        <tbody>
-          <tr>
-            <td>
-              <label for="csInputCharacterName">Character Name</label>
-              <input  id="csInputCharacterName" type="text" pattern="^[a-zA-Z0-9]*$" value="PLACEHOLDER" required />
-              <div style="display:flex">Level: <div id="csCurrentLevel"></div> XP: <div id="csCurrentXp"></div> (<div id="csNextLevelXp"></div> needed for next level)</div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <label for="csInputRace">Race</label>
-              <select id="csInputRace">
-                <option>Human</option>
-                <option>Monster</option>
-                <option>Goblin</option>
-                <option>Treasure</option>
-              </select>
-              <label for="csInputClass">Class</label>
-              <select id="csInputClass">
-                <option>Fighter</option>
-                <option>Mage</option>
-                <option>Cleric</option>
-                <option>Thief</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <!-- We disable the keypress so that the user can't type in numbers. They have to use the spinner. -->
-              <label for="csInputMaxHp">Max Hit Points</label>
-              <input  id="csInputMaxHp" type="number" min=1 max=1000 value="1000" onKeyDown="return false" required />
-
-              <!-- We disable the keypress so that the user can't type in numbers. They have to use the spinner. -->
-              <label for="csInputAttackDamage">Max Damage</label>
-              <input  id="csInputAttackDamage" type="number" min=1 max=1000 value="1000" onKeyDown="return false" required />
-
-              <button type="button">+1 Max HP</button>
-              <button type="button">+1 Max Damage</button>
-
-              <div style="display:flex">Skill Points Left: <div id="csCurrentSkillPoints"></div></div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-      <!-- <div class="">Character Sheet</div>
-      <div class="csPlayerName">PN</div>
-      <div class="csLevel">Level</div>
-      <div class="csXp">XP</div>
-      <div class="csSkillPoints">SP</div>
-      <div class="csTorchRange">TR</div>
-      <div class="csStrength">Str</div> -->
+      <!-- Modal content -->
+      <div class="modal-content">
+        <div class="csGrid">
+          <div class="csTitle">
+            <label for="csInputCharacterName">Character Name</label>
+            <input  id="csInputCharacterName" type="text" pattern="^[a-zA-Z0-9 ]*$" value="PLACEHOLDER" required />
+          </div>
+          <div class="csClose">
+            <span class="modalClose">&times;</span>
+          </div>  
+          <div class="csRace">
+            <!-- <div style="display:flex">XP: <div id="csCurrentXp"></div> (<div id="csNextLevelXp"></div> needed for next level)</div> -->
+          </div>
+          <div class="CsClass">
+            <!-- <div style="display:flex">XP: <div id="csCurrentXp"></div> (<div id="csNextLevelXp"></div> needed for next level)</div> -->
+          </div>
+          <div class="csLevel">
+            <div style="display:flex">Level: <div id="csCurrentLevel"></div></div>
+          </div>
+          <div class="csXp">
+            <div style="display:flex">XP: <div id="csCurrentXp"></div> (<div id="csNextLevelXp"></div> needed for next level)</div>
+          </div>
+          <div class="csMaxHp">
+            <div style="display:flex">Max Hit Points:<div id="csMaxHp"></div></div>
+            <button type="button" id="bumpHp" class="buttonClass" onclick="hpButtonHandler()">+1 HP</button>
+          </div>
+          <div class="csMaxDmg">
+            <div style="display:flex">Max Damage:<div id="csAttackDamage"></div></div>
+            <button type="button" id="bumpDmg" class="buttonClass" onclick="dmgButtonHandler()">+1 Damage</button>
+          </div>
+          <div class="csSkillPoints">
+            <div style="display:flex">Skill Points Left: <div id="csCurrentSkillPoints"></div></div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-
-
-
     <div id="app"></div>
-
-    <!-- <div id="controls">
-      <form>
-        <input type="number" id="volume" required min="0" max="99" pattern="[0-9]{1,3}"/>
-        <button type="button" onclick="validateVolume()">Submit</button>
-      </form>
-    </div> -->
 
     <script src="./script.js"></script>
   </body>

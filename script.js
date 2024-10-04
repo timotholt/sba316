@@ -1388,6 +1388,48 @@ let tempCharacterSheet = {};
 //   }
 // })
 
+
+
+function hpButtonHandler() {
+
+    debugger;
+
+    const _csMaxHp = document.getElementById(`csMaxHp`);
+    const _csCurrentSkillPoints = document.getElementById('csCurrentSkillPoints');
+
+    let cSp = Number(_csCurrentSkillPoints.innerHTML);
+    let mHp = Number(_csMaxHp.innerHTML)
+
+    // If we have skill points, drop the SP and bump the HP
+    if (cSp > 0) {
+        cSp--;
+        mHp++;
+
+        _csCurrentSkillPoints.innerHTML = cSp;
+        _csMaxHp.innerHTML = mHp;
+    }
+}
+
+function dmgButtonHandler() {
+
+    debugger;
+
+    const _csAttackDamage = document.getElementById(`csAttackDamage`);
+    const _csCurrentSkillPoints = document.getElementById('csCurrentSkillPoints');
+
+    let cSp = Number(_csCurrentSkillPoints.innerHTML);
+    let aDmg = Number(_csAttackDamage.innerHTML)
+
+    // If we have skill points, drop the SP and bump the HP
+    if (cSp > 0) {
+        cSp--;
+        aDmg++;
+
+        _csCurrentSkillPoints.innerHTML = cSp;
+        _csAttackDamage.innerHTML = aDmg;
+    }
+}
+
 // Save character sheet
 function saveCharacterSheet() {
     entityList[0] = Object.assign({}, tempCharacterSheet);
@@ -1407,10 +1449,10 @@ function populateCharacterSheet() {
     // Fill in fields into form
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
     _csInputCharacterName.value = tempCharacterSheet.name;
-    const _csInputMaxHp = document.getElementById(`csInputMaxHp`);
-    _csInputMaxHp.value = Number(tempCharacterSheet.maxHp);
-    const _csInputAttackDamage = document.getElementById(`csInputAttackDamage`);
-    _csInputAttackDamage.value = Number(tempCharacterSheet.attackDamage);
+    const _csMaxHp = document.getElementById(`csMaxHp`);
+    _csMaxHp.innerHTML = Number(tempCharacterSheet.maxHp);
+    const _csAttackDamage = document.getElementById(`csAttackDamage`);
+    _csAttackDamage.innerHTML = Number(tempCharacterSheet.attackDamage);
 
     // Read only
     const _csCurrentLevel = document.getElementById(`csCurrentLevel`);
@@ -1426,17 +1468,25 @@ function populateCharacterSheet() {
 }
 
 function validateCharacterSheet() {
-    // Save fields into temporary character sheet
+
+    // DOM validation goes here.  If character name is invalid, return
     const _csInputCharacterName = document.getElementById(`csInputCharacterName`);
+    if (_csInputCharacterName.checkValidity() === false)
+        return (false);
+
+    // Save fields into temporary character sheet
     tempCharacterSheet.name = _csInputCharacterName.value;
-    const _csInputMaxHp = document.getElementById(`csInputMaxHp`);
-    tempCharacterSheet.maxHp = Number(_csInputMaxHp.value);
-    const _csInputAttackDamage = document.getElementById(`csInputAttackDamage`);
-    tempCharacterSheet.attackDamage = Number(_csInputAttackDamage.value);
+
+    const _csMaxHp = document.getElementById(`csMaxHp`);
+    tempCharacterSheet.maxHp = Number(_csMaxHp.innerHTML);
+    const _csAttackDamage = document.getElementById(`csAttackDamage`);
+    tempCharacterSheet.attackDamage = Number(_csAttackDamage.innerHTML);
 
     // Save off skill points
     const _csCurrentSkillPoints = document.getElementById(`csCurrentSkillPoints`);
     tempCharacterSheet.currentSkillPoints = Number(_csCurrentSkillPoints.innerHTML);
+
+    return (true);
 }
 
 function openCharacterSheet() {
@@ -1449,12 +1499,16 @@ function openCharacterSheet() {
 }
 
 //====================================================
+// DOM validation goes here
 //====================================================
 
 function checkCsForChangesAndSaveAccordingly() {
 
     // Load temp character sheet from form
-    validateCharacterSheet();
+    if (validateCharacterSheet() === false) {
+        message(`Bad character name, character sheet canceled. (DOM validation failed).`)
+        return (false);        
+    }
 
     // If character sheet changed, prompt user
     if (isCharacterSheetChanged()) {
@@ -1466,6 +1520,7 @@ function checkCsForChangesAndSaveAccordingly() {
             message(`Changes to character sheet canceled.`);
         }
     }
+    return (true);
 }
 
 //========================================================
@@ -1494,7 +1549,7 @@ window.onclick = function(event) {
 
 //=============================
 initGameState();
-
+debugger;
 
 // Choose character class
 
@@ -1508,7 +1563,7 @@ window.alert(
 );
 
 // Open character sheet
-openCharacterSheet();
+// openCharacterSheet();
 
 // Start game
 message(`Welcome to ASCII Dungeon\n`);
