@@ -615,7 +615,56 @@ const entityTemplates = [
         // lastSeenY: -1,    
         lastX: -1,
         lastY: -1
-    }
+    },
+
+    // Torch
+    {
+        playerCharacter: false,
+        characterClass: `torch`,
+        subClass: `torch`,
+        name: `burning hot torch`,
+        icon: `*`,
+
+        startLevel: 1,
+        currentLevel: 1,
+        maxLevel: 10,
+
+        startXp: 0,
+        currentXp: 0,
+
+        startHp: 10,
+        currentHp: 10,
+        maxHp: 10000,
+        maxHpPerLevel: 10,
+        
+        startSightRange: 1,
+        currentSightRange: 1,
+        maxSightRange: 1,
+        
+        attackType: `none`,
+        attackMessage: `ERROR BAD ATTACK MESSAGE`,
+        attackRange: 0,
+        attackDamage: 0,
+
+        startSkillPoints: 10,
+        currentSkillPoints: 10,
+        skillPointsPerLevel: 1,
+
+        // Runtime stuff
+        // entityVisible: false,
+
+        // Gold
+        gold: 0,
+        goldMultiplier: 0,
+
+        // Where entity is on the map
+        X: -1,
+        Y: -1,
+        // lastSeenX: -1,
+        // lastSeenY: -1,    
+        lastX: -1,
+        lastY: -1
+    }    
 ];
 
 //=======================================================
@@ -882,6 +931,7 @@ function updatePossibleTileActions() {
                             break;
 
                         // Some kind of treasure
+                        case 'torch':
                         case 'chest':
                         case 'gold':
                         case 'corpose':
@@ -1338,22 +1388,54 @@ function gameLoop() {
                 switch (e.characterClass) {
 
                     //====================================================================
+                    //
+                    //====================================================================
+
+                    case `torch`: {
+                        // If we are in touching distance
+                        if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.42) {
+
+                            // Increase player's viewing distance
+                            playerCharacter().currentSightRange += e.currentSightRange;
+                            message(`You picked up another torch, illuminating the area better.`);
+
+                            // Delete entity
+                            destroyEntity(e);
+
+                            // Move player to spot
+                            moveEntity(playerCharacter(), clickY, clickX);
+
+                            // Draw all entities
+                            drawBoard();
+                            updatePossibleTileActions();
+                            switchBuffer();
+                        }
+                    }
+                    break;
+
+                    //====================================================================
                     // Stairs down
                     //====================================================================
 
                     case `stairs`: {
-                        dungeonLevel++;
-                        initLevel();
 
-                        // Draw all entities
-                        drawBoard();
-                        updatePossibleTileActions();
-                        switchBuffer();
+                        // If we are in touching distance
+                        if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.42) {
+
+                            dungeonLevel++;
+                            initLevel();
+
+                            // Draw all entities
+                            drawBoard();
+                            updatePossibleTileActions();
+                            switchBuffer();
+                        }
                     }
                     break;
 
                     //====================================================================
                     //====================================================================
+
                     case 'chest':
 
                     //====================================================================
