@@ -354,6 +354,7 @@ const entityTemplates = [
 
         // Runtime stuff
         // entityVisible: false,
+        entityPermaneltyVisible: false,
 
         // Gold
         gold: 0,
@@ -403,6 +404,7 @@ const entityTemplates = [
 
         // Runtime stuff
         // entityVisible: false,
+        entityPermaneltyVisible: false,
 
         // Gold
         gold: 0,
@@ -452,6 +454,7 @@ const entityTemplates = [
 
         // Runtime stuff
         // entityVisible: false,
+        entityPermaneltyVisible: false,
 
         // Gold
         gold: 0,
@@ -501,6 +504,7 @@ const entityTemplates = [
 
         // Runtime stuff
         // entityVisible: false,
+        entityPermaneltyVisible: false,
 
         // Gold
         gold: 50,
@@ -550,6 +554,7 @@ const entityTemplates = [
 
         // Runtime stuff
         // entityVisible: false,
+        entityPermaneltyVisible: false,
 
         // Gold
         gold: 0,
@@ -599,6 +604,7 @@ const entityTemplates = [
 
         // Runtime stuff
         // entityVisible: false,
+        entityPermaneltyVisible: false,
 
         // Gold
         gold: 0,
@@ -648,6 +654,7 @@ const entityTemplates = [
 
         // Runtime stuff
         // entityVisible: false,
+        entityPermaneltyVisible: false,
 
         // Gold
         gold: 0,
@@ -784,14 +791,12 @@ function drawEntityFromPlayerPov(entity) {
     let pc = playerCharacter();
     let d  = distanceBetweenEntities(pc, entity);
 
-    // If the entity is in sight range of the player
-    if (d <= sr) {
+    // If the entity is in sight range of the player or it's permanently visible
+    if ((d <= sr) || (entity.entityPermaneltyVisible === true)) {
 
-        // // if the entity was visible the last time we drew him, leave him there 
-        // if (entity.entityVisible) {
-        //     return;
-        // }
-        // Entity just became visible
+        // Once the player discovers stairs, it's always visible to the player
+        if (entity.characterClass === `stairs`)
+            entity.entityPermaneltyVisible = true;
 
         // changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, terrainMap[entity.Y][entity.X].icon);
         changeHTMLCellText(offScreenBuffer, entity.Y, entity.X, entity.icon);
@@ -893,14 +898,9 @@ function updatePossibleTileActions() {
             let squareInWalkingRange = distanceFromPlayer < 1.42; 
             let e = getEntityAtCell (y, x);
 
-            // If the square is within site range
-            if (squareInSightRange) {
-                // make the background lighter
-                addCssStyleToCell(offScreenBuffer, y, x, "light");
-            }
-            else {
-                removeCssStyleFromCell(offScreenBuffer, y, x, "light");
-            }
+            // Add or remove light from the square depending if it's in sight range or not
+            squareInSightRange ?
+                addCssStyleToCell(offScreenBuffer, y, x, "light") : removeCssStyleFromCell(offScreenBuffer, y, x, "light");
 
             // If we are the same location as the player, skip it
             if (y === playerCharacter().Y && x === playerCharacter().X)
