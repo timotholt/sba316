@@ -1180,12 +1180,11 @@ function message(...args) {
     const messageAreaSubDiv = messageArea.firstChild;
 
     // Grab all the arguments and convert it to one long string, add <strong></strong>
-    // let s = addHTMLTag(args.join(``), `strong`);
-    let s = addHTMLTagAndClass(args.join(``), `strong`, `animated`);
+    let s = addHTMLTag(args.join(``), `span`);
+    s = addHTMLTagAndClass(s, `strong`, `glow`);
 
     // Remove the strong tag from the existing message area
-    // messageText = removeHTMLTag(messageText, `strong`);
-    //messageText = removeHTMLTagAndClass(messageText, `strong`);
+    messageText = removeHTMLTagAndClass(messageText, `strong`);
 
     // Add new string to messageText
     messageText += s + `\n`;

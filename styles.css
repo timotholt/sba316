@@ -74,12 +74,26 @@ button:hover {
   font-size: 0.9em;
   overflow: scroll;
   overflow-y:auto;
+  /* text-align: left; */
 }
 
 /* Define colors of the message area */
 #messageArea { color: #a0a0a0 };
-#messageArea strong { color: #c0c0c0; }
-#messageArea strong:hover { color: white; }
+#messageArea span { color: #c0c0c0; }
+#messageArea span:hover { color: white; }
+
+.glow {
+  animation-name: pulse;
+  animation-duration: 1.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes pulse {
+  0% { opacity: 0; color: black; }
+  30% { opacity: 1; color: white; }
+  100% { opacity: 1; color: #c0c0c0 }
+}
+
 
 pre {
   line-height: 1.1;
