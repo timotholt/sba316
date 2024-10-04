@@ -793,7 +793,7 @@ function drawBoard() {
 
     // Update status area
     let statusArea = document.getElementById(`statusArea`);
-    statusArea.innerHTML = `${playerCharacter().name}, a ${playerCharacter().characterClass} ${playerCharacter().subClass}. Level: ${playerCharacter().currentLevel}, HP: ${playerCharacter().currentHp}/${playerCharacter().maxHp}, Gold ${playerCharacter().gold}`;
+    statusArea.innerHTML = `Dungeon level ${dungeonLevel}. ${playerCharacter().name}, a ${playerCharacter().characterClass} ${playerCharacter().subClass}. Level: ${playerCharacter().currentLevel}, HP: ${playerCharacter().currentHp}/${playerCharacter().maxHp}, Gold ${playerCharacter().gold}`;
 }
 
 // Redraw the screen
@@ -1336,6 +1336,21 @@ function gameLoop() {
 
                 // Check entity types
                 switch (e.characterClass) {
+
+                    //====================================================================
+                    // Stairs down
+                    //====================================================================
+
+                    case `stairs`: {
+                        dungeonLevel++;
+                        initLevel();
+
+                        // Draw all entities
+                        drawBoard();
+                        updatePossibleTileActions();
+                        switchBuffer();
+                    }
+                    break;
 
                     //====================================================================
                     //====================================================================
