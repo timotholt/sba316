@@ -236,14 +236,10 @@ function getEntityAtCell(row, col) {
 
 function destroyEntity(entity) {
 
-    debugger;
-
     // Go through the list
     for (let i = 0; i < entityList.length; i++)
         if (entityList[i] === entity) {
             entityList.splice(i,1);
-
-            console.log(`Trying to destroy entity #${i}`);
         }
 }
 
@@ -1209,13 +1205,7 @@ function createHTMLBoard() {
             const rowElement = document.createElement(`div`);
             rowElement.id = rowId;
             rowElement.style.display = "grid";
-            // console.log(rowElement.id);
             colString = ``;
-
-            // Debug stuff
-            // rowElement.style.backgroundcolor = "red";
-            // rowElement.stylecolor = "white";
-            // rowElement.innerHTML = rowId;
 
             // Make the columns
             for (let X = 0; X < gameWidth; X++) {
@@ -1230,7 +1220,6 @@ function createHTMLBoard() {
                 colElement.id = cellId;
 
                 // Populate it with any entities
-                // colElement.innerHTML = terrainMap[Y][X].icon;
                 colElement.innerHTML = " "; // blank.icon;
 
                 // console.log(`cellId [${Y}][${X}] = ${colElement.innerHTML}`);
@@ -1322,11 +1311,6 @@ function initGameState() {
         cueManOverboard.currentTime = 0;
         cueManOverboard.play();                    
     }
-
-    // console.log(`Player Y/X = ${playerCharacter().Y} / ${playerCharacter().X}`);
-
-    // drawShip();
-    // drawSwimmer();
 }
 
 // Start audio if if it hasn't been started
@@ -1383,6 +1367,8 @@ function gameLoop() {
             let e = getEntityAtCell(clickY, clickX);
             if (e !== false) {
                 console.log(`Entity clicked on = ${e.name}`);
+
+debugger;
 
                 // Check entity types
                 switch (e.characterClass) {
@@ -1465,7 +1451,7 @@ function gameLoop() {
                         // Calculate defender
                         // attacker attacks defender
                     }
-                    break;
+                    // break;
 
                     // Objects we haven't coded yet
                     default: {
