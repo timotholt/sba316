@@ -240,8 +240,11 @@ function destroyEntity(entity) {
 
     // Go through the list
     for (let i = 0; i < entityList.length; i++)
-        if (entityList[i] === entity);
-            entityList.splice(i,1);   
+        if (entityList[i] === entity) {
+            entityList.splice(i,1);
+
+            console.log(`Trying to destroy entity #${i}`);
+        }
 }
 
 //===============================================================
