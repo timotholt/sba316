@@ -1459,7 +1459,15 @@ debugger;
                             updatePossibleTileActions();
                             switchBuffer();
 
+                            // Tell the player he changed levels
                             message(`You stumble down the stairs to dungeon level ${dungeonLevel}.`);
+
+                            // Reduce the sight range on level change
+                            if (playerCharacter().currentSightRange > playerCharacter().startSightRange) {
+                                playerCharacter().currentSightRange = playerCharacter().startSightRange;
+                                message(`A gust of wind blows out your torches. You can only see ${Math.floor(playerCharacter().currentSightRange)} tiles into the darkness.`);
+                            }
+
                         }
                     }
                     break;
