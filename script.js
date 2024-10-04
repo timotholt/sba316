@@ -1411,8 +1411,6 @@ function gameLoop() {
             if (e !== false) {
                 console.log(`Entity clicked on = ${e.name}`);
 
-debugger;
-
                 // Check entity types
                 switch (e.characterClass) {
 
