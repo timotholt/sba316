@@ -1649,7 +1649,7 @@ initGameState();
 // // Show the instructions
 window.alert(
     `ASCII Dungeon!\n\n` +
-    `An unfinished adventure game.\n\n` +
+    `An unfinished adventure game.\n\n`
     // `The first step is to look over your character and spend your skill points.\n`
 );
 
