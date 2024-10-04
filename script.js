@@ -888,13 +888,17 @@ function updatePossibleTileActions() {
     for (let y = 0; y < gameHeight; y++) {
         for (let x = 0; x < gameWidth; x++) {
 
+            let distanceFromPlayer   = distanceBetween(x, y, playerCharacter().X, playerCharacter().Y);
+            let squareInSightRange   = distanceFromPlayer < playerCharacter().currentSightRange;
+            let squareInWalkingRange = distanceFromPlayer < 1.42; 
+            let e = getEntityAtCell (y, x);
+
             // If the square is within site range
-            if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
+            if (squareInSightRange) {
                 // make the background lighter
                 addCssStyleToCell(offScreenBuffer, y, x, "light");
             }
-            else
-            {
+            else {
                 removeCssStyleFromCell(offScreenBuffer, y, x, "light");
             }
 
@@ -902,47 +906,63 @@ function updatePossibleTileActions() {
             if (y === playerCharacter().Y && x === playerCharacter().X)
                 continue; 
 
-            // If square(x,y) is visible to the player
-            if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().currentSightRange) {
+            // If we can walk to the tile . . .
+            if (squareInWalkingRange) {
 
-                // See if there is an entity at that cell
-                let e = getEntityAtCell(y, x);
+                // If no entity or it's a stairs, we can walk to that square
+                if (!e || e.characterClass === `stairs`) {
+                    addCssStyleToCell(offScreenBuffer, y, x, "canMoveTo");
+                }
 
-                // If there is an entity at that square
-                if (e) {
-                    // Figure out what kind of entity is in that square
+                // Otherwise check entity list
+                else {
+
+                    // Check the list
                     switch (e.characterClass) {
 
-                        // Some kind of monster
-                        case 'monster':
-                        case 'human':
-
-                            // if in range of weapon
-                            if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
-                                // we can attack it
-                                addCssStyleToCell(offScreenBuffer, y, x, "monsterInRange");
-                            else
-                                // not in range, we can't attack
-                                addCssStyleToCell(offScreenBuffer, y, x, "monsterOutOfRange");
-                            break;
-
-                        // Some kind of treasure
-                        case 'torch':
-                        case 'chest':
-                        case 'gold':
-                        case 'corpose':
+                        // Object within walking distance
+                        case `gold`:
+                        case `chest`:
+                        case `torch`:
+                        case `corpse`:
                             // gold is here
                             addCssStyleToCell(offScreenBuffer, y, x, "treasure");
                             break;
 
-                        // empty spot
-                        default:
+                        // Something we can attack (we can *always* attack monsters/humans within range 1)
+                        case `monster`:
+                        case `human`:
+                            // We can attack it
+                            addCssStyleToCell(offScreenBuffer, y, x, "monsterInRange");
+                            break;
                     }
                 }
-                else {
-                    // If we can walk there... (one square away), add the canMoveTo style
-                    if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) < 1.42)
-                        addCssStyleToCell(offScreenBuffer, y, x, "canMoveTo");
+            }
+
+            // Square isn't in walking range.  If we can see it . . .
+            else if (squareInSightRange) {
+
+                // If there a monster there . . .
+                switch (e) {
+                    // Some kind of treasure
+                    case 'torch':
+                    case 'chest':
+                    case 'gold':
+                    case 'corpose':
+                        // gold is here
+                        addCssStyleToCell(offScreenBuffer, y, x, "treasure");
+                        break;
+
+                    case `monster`:
+                    case `human`:
+                        // if in range of weapon
+                        if (distanceBetween(x, y, playerCharacter().X, playerCharacter().Y) <= playerCharacter().attackRange)
+                            // we can attack it
+                            addCssStyleToCell(offScreenBuffer, y, x, "monsterInRange");
+                        else
+                            // not in range, we can't attack
+                            addCssStyleToCell(offScreenBuffer, y, x, "monsterOutOfRange");
+                        break;
                 }
             }
         }
@@ -1161,11 +1181,11 @@ function message(...args) {
 
     // Grab all the arguments and convert it to one long string, add <strong></strong>
     // let s = addHTMLTag(args.join(``), `strong`);
-    let s = addHTMLTagAndClass(args.join(``), `strong`, `glowing`);
+    let s = addHTMLTagAndClass(args.join(``), `strong`, `animated`);
 
     // Remove the strong tag from the existing message area
     // messageText = removeHTMLTag(messageText, `strong`);
-    messageText = removeHTMLTagAndClass(messageText, `strong`);
+    //messageText = removeHTMLTagAndClass(messageText, `strong`);
 
     // Add new string to messageText
     messageText += s + `\n`;
@@ -1294,7 +1314,7 @@ function initPlayerCharacter() {
 
     // Make player a fighter and visible
     entityList[0] = Object.assign({}, entityTemplates[0]);
-    entityList[0].icon = '@';                                   // just like hack and nethack
+    entityList[0].icon = '@';                                       // just like hack and nethack
     entityList[0].name = 'Man With No Name';
     entityList[0].gold = 0;
     entityList[0].goldMultiplier = 0;
@@ -1457,7 +1477,7 @@ debugger;
 
                             // Move gold to player
                             playerCharacter().gold += e.gold;
-                            message(`You picked up ${e.gold} gold. You now have ${playerCharacter().gold}`);
+                            message(`You picked up ${e.gold} gold. You now have ${playerCharacter().gold}.`);
 
                             // Delete entity
                             destroyEntity(e);

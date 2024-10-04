@@ -70,11 +70,16 @@ button:hover {
   /* width: 50px; */
   width: auto;
   background-color: black;
-  color: white;
+  color: #b0b0b0;
   font-size: 0.9em;
   overflow: scroll;
   overflow-y:auto;
 }
+
+/* Define colors of the message area */
+#messageArea { color: #a0a0a0 };
+#messageArea strong { color: #c0c0c0; }
+#messageArea strong:hover { color: white; }
 
 pre {
   line-height: 1.1;
