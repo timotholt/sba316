@@ -235,6 +235,9 @@ function getEntityAtCell(row, col) {
 // called when we pickup treasure or kill a monster
 
 function destroyEntity(entity) {
+
+    debugger;
+
     // Go through the list
     for (let i = 0; i < entityList.length; i++)
         if (entityList[i] === entity);
@@ -1651,7 +1654,7 @@ window.alert(
 );
 
 // Open character sheet
-// openCharacterSheet();
+openCharacterSheet();
 
 // Start game
 message(`Welcome to ASCII Dungeon\n`);
