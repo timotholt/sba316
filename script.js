@@ -20,7 +20,8 @@ let musicStarted = false;
 // Tom Cruise's cues
 //================================================
 
-const cueManOverboard = new Audio(`./startrescue.mp3`);
+// const cueManOverboard = new Audio(`./startrescue.mp3`);
+const cueManOverboard = new Audio(``);
 const cueManSpotted   = new Audio(`./manspotted.mp3`);
 const cueManLost      = new Audio(`./crashsitelost.mp3`);
 const cueManRescued   = new Audio(`./gooserescued.mp3`);
@@ -34,6 +35,9 @@ const gameWidth = 40;
 // # of entities (monsters / treasure) is based upon window size
 const entityList = [];
 let numEntities = (gameHeight * gameWidth) / 10;
+
+// Current dungeon level
+let dungeonLevel = 1;
 
 // window.resizeTo(gameWidth, gameHeight);
 
@@ -351,6 +355,7 @@ const entityTemplates = [
 
         // Gold
         gold: 0,
+        goldMultiplier: 10,
 
         // Where entity is on the map
         X: -1,
@@ -399,6 +404,7 @@ const entityTemplates = [
 
         // Gold
         gold: 0,
+        goldMultiplier: 10,
 
         // Where entity is on the map
         X: -1,
@@ -447,6 +453,7 @@ const entityTemplates = [
 
         // Gold
         gold: 0,
+        goldMultiplier: 10,
 
         // Where entity is on the map
         X: -1,
@@ -495,6 +502,7 @@ const entityTemplates = [
 
         // Gold
         gold: 0,
+        goldMultiplier: 10,
 
         // Where entity is on the map
         X: -1,
@@ -543,6 +551,7 @@ const entityTemplates = [
 
         // Gold
         gold: 0,
+        goldMultiplier: 10,
 
         // Where entity is on the map
         X: -1,
@@ -591,6 +600,7 @@ const entityTemplates = [
 
         // Gold
         gold: 0,
+        goldMultiplier: 0,
 
         // Where entity is on the map
         X: -1,
@@ -1005,6 +1015,9 @@ function initLevel() {
         // Give it a random location
         assignEntitySafeXY(entityList[i]);
 
+        // Give it some gold
+        entityList[i].gold += randomInt(dungeonLevel * entityList[i].goldMultiplier);
+
         // Assume it's not visible
         // entityList[i].entityVisible = false;
     }    
@@ -1066,8 +1079,6 @@ function initLevel() {
 let messageText = '';
 
 function message() {
-
-    debugger;
 
     const messageArea = document.getElementById(`messageArea`);
 
@@ -1218,6 +1229,7 @@ function initPlayerCharacter() {
     entityList[0].icon = '@';                                   // just like hack and nethack
     entityList[0].name = 'Man With No Name';
     entityList[0].gold = 0;
+    entityList[0].goldMultiplier = 0;
     entityList[0].playerCharacter = true;
 
     // Return player entity
@@ -1314,11 +1326,32 @@ function gameLoop() {
             // if the player clicked on an entity
             let e = getEntityAtCell(clickY, clickX);
             if (e !== false) {
-                console.log(`entity clicked on = ${e.name}`);
+                console.log(`Entity clicked on = ${e.name}`);
 
-                message(`You clicked on a ${e.name} (${e.icon}), but the game doesn't allow interacting with a ${e.name} yet!`);
+                // Check entity types
+                switch (e.characterClass) {
 
-                switch (e.name) {
+                    //====================================================================
+                    // Clicked on gold
+                    //====================================================================
+                    case 'gold': {
+
+                        // If we are in touching distance
+                        if (distanceBetween(clickY, clickX, playerCharacter().Y, playerCharacter().X) <= 1.42) {
+
+                            // Move gold to player
+                            playerCharacter().gold += e.gold;
+                            message(`You picked up ${e.gold} gold. You now have ${playerCharacter().gold}`);
+
+                            // Delete entity
+                            destroyEntity(e);
+
+                            // Move player to spot
+                            moveEntity(playerCharacter(), clickY, clickX);
+                        }
+                    }
+                    break;
+
                     case 'treasure chest': {
                     }
                         break;
@@ -1327,8 +1360,14 @@ function gameLoop() {
                         // Calculate attacker
                         // Calculate defender
                         // attacker attacks defender
-                        break;
                     }
+                    break;
+
+                    // Objects we haven't coded yet
+                    default: {
+                        message(`You clicked on a ${e.name} (${e.icon}), but the game doesn't allow interacting with a ${e.name} yet!`);
+                    }
+                    break;
                 }
             }
             
