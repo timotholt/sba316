@@ -1,5 +1,10 @@
 sba316
 
+ASCII Dungeon -- 
+
+A throwback to old school ASCII dungeons.  Since it's an SBA and not a finished game, you can't interact with any objects.
+But you can walk around and the torch works properly.
+
 Source code at: https://github.com/timotholt/sba316/
 
 Running version at: https://timotholt.github.io/sba316/
