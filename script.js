@@ -551,7 +551,55 @@ const entityTemplates = [
         // lastSeenY: -1,    
         lastX: -1,
         lastY: -1
-    }        
+    },
+
+    // Portal down
+    {
+        playerCharacter: false,
+        characterClass: `stairs`,
+        subClass: `down`,
+        name: `stairs down`,
+        icon: `>`,
+
+        startLevel: 1,
+        currentLevel: 1,
+        maxLevel: 10,
+
+        startXp: 0,
+        currentXp: 0,
+
+        startHp: 10,
+        currentHp: 10,
+        maxHp: 10000,
+        maxHpPerLevel: 10,
+        
+        startSightRange: 3,
+        currentSightRange: 3,
+        maxSightRange: 100,
+        
+        attackType: `none`,
+        attackMessage: `ERROR BAD ATTACK MESSAGE`,
+        attackRange: 0,
+        attackDamage: 0,
+
+        startSkillPoints: 10,
+        currentSkillPoints: 10,
+        skillPointsPerLevel: 1,
+
+        // Runtime stuff
+        // entityVisible: false,
+
+        // Gold
+        gold: 0,
+
+        // Where entity is on the map
+        X: -1,
+        Y: -1,
+        // lastSeenX: -1,
+        // lastSeenY: -1,    
+        lastX: -1,
+        lastY: -1
+    }
 ];
 
 //=======================================================
@@ -643,7 +691,7 @@ function entityAttacksEntity(attacker, defender) {
         // Check for death
         if (defender.hp <= 0) {
 
-            // Defender has died. Attacker gains XP from defeated entitiy
+            // Defender has died. Attacker gains XP from defeated entity
             let xpGained = defender.xpValue;
             gainXp(attacker, xpGained);
 
@@ -726,6 +774,10 @@ function drawBoard() {
 
     // Draw all entities on the board
     drawAllEntities();
+
+    // Update status area
+    let statusArea = document.getElementById(`statusArea`);
+    statusArea.innerHTML = `${playerCharacter().name}, a ${playerCharacter().characterClass} ${playerCharacter().subClass}. Level: ${playerCharacter().currentLevel}, HP: ${playerCharacter().currentHp}/${playerCharacter().maxHp}, Gold ${playerCharacter().gold}`;
 }
 
 // Redraw the screen
@@ -920,12 +972,14 @@ function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
 }
 
 //=========================================
+// initLevel()
+//
+// Place entities and player on map
 //=========================================
 
-function createLogicalGameBoard() {
+function initLevel() {
 
-    // Create the player character
-    initPlayerCharacter();
+    let placedStairs = false;
 
     // Populate the logical map with entities (monsters, treasure)
     // Skip entity #0 because that's the player
@@ -933,6 +987,17 @@ function createLogicalGameBoard() {
 
         // Roll the dice to the type of entity
         let randomEntityType = randomInt(entityTemplates.length);
+
+        // If it's stairs and we already put one down, re-roll
+        if (entityTemplates[randomEntityType].characterClass === `stairs`) {
+
+            // if we already have stairs on the map
+            if (placedStairs) {
+                i--;  // bump count down
+                continue;
+            }
+            else placedStairs = true;
+        }
 
         // Copy the template we rolled up to entity list
         entityList[i] = Object.assign({}, entityTemplates[randomEntityType]);
@@ -1101,6 +1166,13 @@ function createHTMLBoard() {
         gameArea.appendChild(bufferDiv);
     }
 
+    // Create status area
+    {
+        let statusArea = document.createElement(`pre`);
+        statusArea.id = `statusArea`;
+        gameArea.appendChild(statusArea);
+    }
+
     // Create the message area
     {
         let messageArea = document.createElement(`div`);
@@ -1141,11 +1213,7 @@ function initGameState() {
     initPlayerCharacter();
 
     // Create game board
-    createLogicalGameBoard();
     createHTMLBoard();
-    drawBoard();
-    updatePossibleTileActions();
-    switchBuffer();
 
     // For proper audio cues
     lastDistance = 100000000000;
@@ -1342,19 +1410,6 @@ function gameLoop() {
     window.requestAnimationFrame(gameLoop);
 }
 
-function validateVolume() {
-    // Get the value of the input field with id="numb"
-    let x = document.getElementById("volume").value;
-    // If x is Not a Number or less than one or greater than 10
-    let text;
-    if (isNaN(x) || x < 1 || x > 10) {
-        text = "Input not valid";
-    } else {
-        text = "Input OK";
-    }
-    // document.getElementById("demo").innerHTML = text;
-}
-
 //==============================================
 // characterSheet modal dialog box
 //==============================================
@@ -1365,34 +1420,14 @@ var csModal = document.getElementById("characterSheet");
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("modalClose")[0];
 
-//===========================
-//===========================
-
+// Save player character's info here temporarily
 let tempCharacterSheet = {};    
 
 //===========================
-// HP event listener
+// HP and SP event listener
 //===========================
 
-
-
-// let lastHp = e.target.value;
-// let last
-// const input = document.querySelector('input');
-// input.addEventListener('input', (e) => {
-//   if (e.target.value > 12) {
-//     e.target.value = 0
-//   }
-//   if (e.target.value < 0) {
-//     e.target.value = 12
-//   }
-// })
-
-
-
 function hpButtonHandler() {
-
-    debugger;
 
     const _csMaxHp = document.getElementById(`csMaxHp`);
     const _csCurrentSkillPoints = document.getElementById('csCurrentSkillPoints');
@@ -1411,8 +1446,6 @@ function hpButtonHandler() {
 }
 
 function dmgButtonHandler() {
-
-    debugger;
 
     const _csAttackDamage = document.getElementById(`csAttackDamage`);
     const _csCurrentSkillPoints = document.getElementById('csCurrentSkillPoints');
@@ -1547,13 +1580,16 @@ window.onclick = function(event) {
     }
 }
 
-//=============================
-initGameState();
-debugger;
-
+//========================================================
+// initGameState() can be called only once
+//========================================================
 // Choose character class
+initGameState();
+
+
 
 // 
+debugger;
 
 // // Show the instructions
 window.alert(
@@ -1578,6 +1614,15 @@ message(`The illuminated area is represented by the gray area on the map. Monste
 
 message(`Click on yourself (@) to open your character sheet to change your name and spend skill points.\n`);
 
+//========================================================
+// () can be called over and over
+//========================================================
+initLevel();
+
+// Draw all entities
+drawBoard();
+updatePossibleTileActions();
+switchBuffer();
 
 // Start the game loop
 window.requestAnimationFrame(gameLoop);

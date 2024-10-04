@@ -47,6 +47,16 @@ button:hover {
   width: 40em;
 }
 
+#statusArea {
+  margin: 1em 0em 1em 0em;
+  padding: 0.2em 1em 0.2em 1em;
+  height: 1.2em;
+  width: auto;
+  background-color: black;
+  color: white;
+  font-size: 0.9em;
+}
+
 #gameArea {
   display: grid;
   background-color: blue;
