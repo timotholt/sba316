@@ -1118,6 +1118,25 @@ function initLevel() {
 // player here.  We use the ('pre') style so that \n works!
 //=================================================================
 
+// Surround text with specified HTML tag
+function addHTMLTag(text, tag) {
+    return `<${tag}>${text}</${tag}>`;
+}
+
+// Remove specified HTML tag from text
+function removeHTMLTag(text, tag) {
+    const regex = new RegExp(`<${tag}>|</${tag}>`, 'g');
+    return text.replace(regex, '');
+}
+
+function addHTMLTagAndClass(text, tag, className) {
+    return `<${tag} class="${className}">${text}</${tag}>`;
+}
+
+function removeHTMLTagAndClass(text, tag) {
+    const regex = new RegExp(`<${tag}(?: class="[^"]*")?>|</${tag}>`, 'g');
+    return text.replace(regex, '');
+}
 
 //=================================================================
 // messageText
@@ -1130,7 +1149,7 @@ function initLevel() {
 
 let messageText = '';
 
-function message() {
+function message(...args) {
 
     const messageArea = document.getElementById(`messageArea`);
 
@@ -1140,14 +1159,18 @@ function message() {
     // Do it for 5% of the grade
     const messageAreaSubDiv = messageArea.firstChild;
 
-    // Grab all the arguments and convert it to one long string
-    let s = '';
-    for (i = 0; i < arguments.length; i++) {
-        s += String(arguments[i]);
-    }
+    // Grab all the arguments and convert it to one long string, add <strong></strong>
+    // let s = addHTMLTag(args.join(``), `strong`);
+    let s = addHTMLTagAndClass(args.join(``), `strong`, `glowing`);
+
+    // Remove the strong tag from the existing message area
+    // messageText = removeHTMLTag(messageText, `strong`);
+    messageText = removeHTMLTagAndClass(messageText, `strong`);
+
+    // Add new string to messageText
+    messageText += s + `\n`;
 
     // Add string to the message area
-    messageText += s + `\n`;
     messageAreaSubDiv.innerHTML = messageText;
 
     // Move the scroll bar to the bottom so we can see the most current message
