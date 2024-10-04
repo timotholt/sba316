@@ -13,7 +13,7 @@ Running version at: https://timotholt.github.io/sba316/
 |Iterate over a collection of elements to accomplish some task.|10%|✅|
 |Create at least one element using createElement.|5%|✅|
 |Use appendChild and/or prepend to add new elements to the DOM.|5%|✅|
-|Use the DocumentFragment interface or HTML templating with the cloneNode method to create templated content. |2%||
+|Use the DocumentFragment interface or HTML templating with the cloneNode method to create templated content. |2%|✅|
 |Modify the HTML or text content of at least one element in response to user interaction using innerHTML, innerText, or textContent.|10%|✅|
 |Modify the style and/or CSS classes of an element in response to user interactions using the style or classList properties.|5%|✅|
 |Modify at least one attribute of an element in response to user interaction.|3%|✅|

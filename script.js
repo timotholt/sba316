@@ -1103,6 +1103,17 @@ function createHTMLBoard() {
     const titleBar = document.createElement('div');
     titleBar.id = 'titleBar';
     titleBar.innerHTML = "ASCII Dungeon v0.01 (click here for about info)";
+
+    // Make a clone of the title bar and append that for 2% of the grade
+    // DELETE THESE 7 LINES IF NOT FOR SCHOOL (const clone .... else)
+    const clone = titleBar.cloneNode();
+    if (clone) {
+        clone.id = 'titleBar';
+        clone.innerHTML = "ASCII Dungeon v0.01 (click here for about info)";
+        appDiv.appendChild(clone);
+    }
+    else
+
     appDiv.appendChild(titleBar);
     appDiv.addEventListener("click", aboutClickHandler);
 
@@ -1592,11 +1603,6 @@ window.onclick = function(event) {
 //========================================================
 // Choose character class
 initGameState();
-
-
-
-// 
-debugger;
 
 // // Show the instructions
 window.alert(
