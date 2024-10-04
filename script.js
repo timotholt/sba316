@@ -507,8 +507,8 @@ const entityTemplates = [
         // entityVisible: false,
 
         // Gold
-        gold: 0,
-        goldMultiplier: 10,
+        gold: 50,
+        goldMultiplier: 1000,
 
         // Where entity is on the map
         X: -1,
@@ -1338,6 +1338,10 @@ function gameLoop() {
                 switch (e.characterClass) {
 
                     //====================================================================
+                    //====================================================================
+                    case 'chest':
+
+                    //====================================================================
                     // Clicked on gold
                     //====================================================================
                     case 'gold': {
@@ -1358,9 +1362,6 @@ function gameLoop() {
                     }
                     break;
 
-                    case 'treasure chest': {
-                    }
-                        break;
                     case 'monster':
                     case 'human': {
                         // Calculate attacker
