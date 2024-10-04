@@ -4,7 +4,7 @@ Source code at: https://github.com/timotholt/sba316/
 
 Running version at: https://timotholt.github.io/sba316/
 
-| Requirement | Percentage Finished |
+| Requirement | Percentage | Finished |
 | :--- | :---: | :---: |
 |Cache at least one element using getElementById.|5%|✅|
 |Cache at least one element using querySelector or querySelectorAll.|5%|✅|
