@@ -1426,7 +1426,7 @@ debugger;
 
                             // Increase player's viewing distance
                             playerCharacter().currentSightRange += e.currentSightRange;
-                            message(`You picked up another torch, illuminating the area better.`);
+                            message(`You picked up another torch, allowing you to see up to ${Math.floor(playerCharacter().currentSightRange)} tiles into the darkness.`);
 
                             // Delete entity
                             destroyEntity(e);
@@ -1458,6 +1458,8 @@ debugger;
                             drawBoard();
                             updatePossibleTileActions();
                             switchBuffer();
+
+                            message(`You stumble down the stairs to dungeon level ${dungeonLevel}.`);
                         }
                     }
                     break;
@@ -1739,6 +1741,12 @@ function checkCsForChangesAndSaveAccordingly() {
         if (result) {
             saveCharacterSheet();
             message(`Changes to character sheet saved.`);
+
+            
+    drawBoard();
+    updatePossibleTileActions();
+    switchBuffer();
+
         } else {
             message(`Changes to character sheet canceled.`);
         }
