@@ -132,3 +132,5 @@ function message(...args) {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
+// Display loading message
+console.log(`message.js loaded.`)

@@ -57,8 +57,6 @@ let dungeonLevel = 1;
 // const ring = `\u{1F6DF}`;                   // The life preserver
 // const rescued = ship + ring + swimmer;      // Combination of all 3
 
-// Random number
-const randomInt = (max) => Math.floor(Math.random() * max); 
 const randY = () => randomInt(gameHeight);
 const randX = () => randomInt(gameWidth);
 
@@ -250,14 +248,8 @@ function destroyEntity(entity) {
 
 function moveEntity(entity, Y, X) {
 
-    console.log(`moving ${entity.name} from (${entity.Y},${entity.X}) to (${Y},${X})`);
-    console.log(`lastXY = ${entity.lastX},${entity.lastY}`);
-
-    // Erase old postion in the map
-    // terrainMap[entity.Y][entity.X] = blank;
-
-    // Move to new position in the map
-    // terrainMap[Y][X] = entity;
+    // console.log(`moving ${entity.name} from (${entity.Y},${entity.X}) to (${Y},${X})`);
+    // console.log(`lastXY = ${entity.lastX},${entity.lastY}`);
 
     // Update entity location
     entity.lastX = entity.X;
@@ -1741,6 +1733,12 @@ switchBuffer();
 
 // Start the game loop
 window.requestAnimationFrame(gameLoop);
+
+
+let a = [];
+for (let i = 0; i < 100; i++)
+    a.push(randomIntBetween(4, 10))
+console.log(a);
 
 // We never get here
 console.log(`goodbye world from sba316`);
