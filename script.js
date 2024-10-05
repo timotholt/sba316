@@ -1,5 +1,6 @@
 console.log(`hello world from sba316`);
 
+
 // Get current window shape
 const windowHeight = window.innerHeight;
 const windowWidth = window.innerWidth;
@@ -1131,89 +1132,6 @@ function initLevel() {
     }    
 }
 
-//=================================================================
-// message()
-//
-// The game has it's own console.  You output messages to the
-// player here.  We use the ('pre') style so that \n works!
-//=================================================================
-
-// Surround text with specified HTML tag
-function addHTMLTag(text, tag) {
-    return `<${tag}>${text}</${tag}>`;
-}
-
-// Remove specified HTML tag from text
-function removeHTMLTag(text, tag) {
-    const regex = new RegExp(`<${tag}>|</${tag}>`, 'g');
-    return text.replace(regex, '');
-}
-
-function addHTMLTagAndClass(text, tag, className) {
-    return `<${tag} class="${className}">${text}</${tag}>`;
-}
-
-function removeHTMLTagAndClass(text, tag) {
-    const regex = new RegExp(`<${tag}(?: class="[^"]*")?>|</${tag}>`, 'g');
-    return text.replace(regex, '');
-}
-
-//====================================================================
-// messageText
-//
-// One super-long string that represents *every single thing* sent
-// to the message area. This will eventually run out of memory but
-// it works for this SBA.
-//
-// Glow effect and hover effect:
-//
-// The hover effect is created by surrounding each line added with
-// the <span></span> and adding a span:hover style in the CSS.  This
-// is permanent.
-//
-// The glow effect is created by surrounding only the last line
-// added with <strong class="glow"></strong> and removing it from
-// all other lines in the buffer.
-//
-// So after message() is called, the message buffer looks like this:
-//
-// <span>Oldest line in buffer</span>
-// <span>more text</span>
-// <span>more text etc</span>
-// <strong class="glow"><span>Newest line added</span></strong>
-//
-// The next time a line is added, we remove all previous occurances
-// of <strong> and </strong>, then add the new text with the glow.
-//====================================================================
-
-let messageBuffer = '';
-
-function message(...args) {
-
-    const messageArea = document.getElementById(`messageArea`);
-
-    // Best way to do it
-    // const messageAreaSubDiv = document.getElementById('messageAreaSubDiv');
-
-    // Do it for 5% of the grade
-    const messageAreaSubDiv = messageArea.firstChild;
-
-    // Grab all the arguments and convert it to one long string, add <strong class="glow"><span>args</span></strong>
-    let s = addHTMLTag(args.join(``), `span`);
-    s = addHTMLTagAndClass(s, `strong`, `glow`);
-
-    // Remove the strong tag from all lines in the message buffer
-    messageBuffer = removeHTMLTagAndClass(messageBuffer, `strong`);
-
-    // Add new string to message buffer
-    messageBuffer += s + `\n`;
-
-    // Add new string to the message buffer
-    messageAreaSubDiv.innerHTML = messageBuffer;
-
-    // Move the scroll bar to the bottom so we can see the most current message
-    messageArea.scrollTop = messageArea.scrollHeight;
-}
 
 // Populate the screen by making divs and appending them over and over...
 // This is 5% + 5% + 10% of the grade
@@ -1310,12 +1228,8 @@ function createHTMLBoard() {
 
     // Create the message area
     {
-        let messageArea = document.createElement(`div`);
-        messageArea.id = 'messageArea';
-        gameArea.appendChild(messageArea);
-        let messageAreaSubDiv = document.createElement('pre');
-        messageAreaSubDiv.id = 'messageAreaSubDiv';
-        messageArea.appendChild(messageAreaSubDiv);
+        initMessage(gameArea);
+        // setMessageBufferLength(5);
     }
 
     // Add mouse click event for the entire app

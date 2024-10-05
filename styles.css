@@ -63,46 +63,11 @@ button:hover {
   grid-template-columns: "1fr 1fr 1fr";
 }
 
-#messageArea {
-  margin: 1em 0em 1em 0em;
-  padding: 0em 1em 0em 1em;
-  height: 14em;
-  /* width: 50px; */
-  width: auto;
-  background-color: black;
-  /* color: #b0b0b0; */
-  font-size: 0.9em;
-  overflow: scroll;
-  overflow-y:auto;
-  /* text-align: left; */
-}
-
-/* Define colors of the message area */
-#messageArea { color: #b0b0b0 };
-#messageArea span { color: #b0b0b0; text-emphasis: initial;}
-#messageArea span:hover { color: white; }
-#messageArea strong { font-weight: normal; }
-
-.glow {
-  animation-name: pulse;
-  animation-duration: 1.2s;
-  animation-fill-mode: forwards;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.5; color: black; text-shadow: none}
-  40% { opacity: 1; color: white; text-shadow: 2px 2px 5px white;}
-  100% { opacity: 1; color: #b0b0b0; text-shadow: none }
-}
 
 pre {
   line-height: 1.1;
   font-family:'Courier New', Courier, monospace;
   font-size: 0.90em;
-/* 
-  overflow: scroll;
-  overflow-y:auto; */
-
 }
 
 #titleBar {
