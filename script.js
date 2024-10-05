@@ -1737,7 +1737,7 @@ window.requestAnimationFrame(gameLoop);
 
 let a = [];
 for (let i = 0; i < 100; i++)
-    a.push(randomIntBetween(4, 10))
+    a.push(randomIntBetween(20, 21))
 console.log(a);
 
 // We never get here
