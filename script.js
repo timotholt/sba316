@@ -1734,11 +1734,10 @@ switchBuffer();
 // Start the game loop
 window.requestAnimationFrame(gameLoop);
 
-
-let a = [];
-for (let i = 0; i < 100; i++)
-    a.push(randomIntBetween(20, 21))
-console.log(a);
+// let a = [];
+// for (let i = 0; i < 100; i++)
+//     a.push(randomIntBetween(20, 21))
+// console.log(a);
 
 // We never get here
 console.log(`goodbye world from sba316`);
