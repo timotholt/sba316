@@ -1008,6 +1008,16 @@ function mainClickHandler(event) {
 // Helper functions
 //=========================================
 
+
+
+function returnValidCellsAround(x, y) {
+    let cord = {};
+    let cellList = [];
+
+}
+
+
+
 function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
 
     let validLoc = false;
@@ -1028,6 +1038,23 @@ function assignEntitySafeXY(entity, tryX = -1, tryY = -1) {
         validLoc = true;
 
     } while (!validLoc);
+}
+
+function assignTwoAdjacentEntitySafeXY(entity1, entity2, tryX = -1, tryY = -1) {
+    let validLoc = false;
+    let bruteForceMethod = false;
+    let searchCount = 0;
+
+    // Keep looking up to 100 times
+    while (!validLoc) {
+
+        // If we have looked 100 times
+        if (searchCount >= 100) {
+
+            // Switch method
+            validLoc
+        }
+    }
 }
 
 //=========================================
