@@ -1,4 +1,3 @@
-
 //==================================================================
 // Generate a fake UUID
 //
@@ -16,10 +15,42 @@
 // Returns a string
 //==================================================================
 
-function generateFakeUUID()
-{
-    let uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    return (uniqueId);
+function generateUniqueUUID() {
+
+    // Get the current timestamp in milliseconds
+    const timestamp = Date.now();
+
+    // Get the user agent
+    const userAgent = navigator.userAgent;
+
+    // Get the screen resolution
+    const screenResolution = `${screen.width}x${screen.height}`;
+
+    // Get the browser language
+    const language = navigator.language;
+
+    // Get the timezone offset
+    const timezoneOffset = new Date().getTimezoneOffset();
+
+    // Generate a random number using crypto.getRandomValues
+    const randomBytes = new Uint8Array(16);
+    crypto.getRandomValues(randomBytes);
+    const randomComponent = Array.from(randomBytes).map(byte => byte.toString(16).padStart(2, '0')).join('');
+
+    // Combine the components into a string and hash it
+    const fingerprint = `${timestamp}-${userAgent}-${screenResolution}-${language}-${timezoneOffset}-${randomComponent}`;
+    const hash = crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprint))
+        .then(hashBytes => {
+        const hashString = Array.from(new Uint8Array(hashBytes)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+        return hashString;
+        })
+        .catch(error => {
+        console.error("Error generating UUID:", error);
+        return null; // Return null or a default value in case of error
+        });
+
+    // Return the hashed fingerprint as the UUID
+    return hash;
 }
 
 console.log(`uuid.js loaded.`)

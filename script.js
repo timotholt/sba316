@@ -1009,11 +1009,22 @@ function mainClickHandler(event) {
 //=========================================
 
 
+// Uses new cartesian coordinate functions
 
-function returnValidCellsAround(x, y) {
-    let cord = {};
+// Returns a list of valid cartesian coordinates around a coordinate
+function getCoordinatesAdjacentTo(cartesianCoordinate, maxX, maxY) {
+
     let cellList = [];
+    let cell = cartesianCoordinate;
 
+    for (cell.y = -1; cell.y <= 1; cell.y++)
+        for (cell.x = -1; cell.x <= 1; cell.x++)
+
+            if ((cartesianCoordinate.x + cell.x > 0) && (cartesianCoordinate.y + cell.y > 0) &&
+                (cartesianCoordinate.x + cell.x < maxX) && (cartesianCoordinate.y + cell.y < maxY))
+                cellList.push(cell);
+
+    return cellList;
 }
 
 
