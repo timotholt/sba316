@@ -36,8 +36,10 @@ class CartesianCoordinate {
     adjacentTo() {
         let cell;
         let result = [];
-        for (let row = -1; row >= 2; row++)
-            for (let col = -1; col >= 2; row++) {
+        for (let row = -1; row <= 1; row++)
+            for (let col = -1; col <= 1; col++) {
+                // Skip this square
+                if (row === 0 && col === 0) continue;
                 cell.x = this.#x + col;
                 cell.y = this.#y + row;
                 if ((cell.y >= 0) && (cell.y < gameHeight()) &&

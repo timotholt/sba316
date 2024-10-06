@@ -64,7 +64,7 @@ class Entity {
             return this.#type = type;
     }
 
-    // Once seen, player always sees large objects
+    // Large objects and "always visible" objects have a special feature: Once seen, always seen
     set spotted(s) {
         this.#spotted = ((this.#size === SIZE_TYPE_LARGE) || (this.#alwaysVisible)) ? true : s;
     }
