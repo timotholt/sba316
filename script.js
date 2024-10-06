@@ -29,13 +29,9 @@ const cueManRescued   = new Audio(`./gooserescued.mp3`);
 const cueMovingAway   = new Audio(`./farsonar.mp3`);
 const cueMovingCloser = new Audio(`./closesonar.mp3`);
 
-// force window to be a certain size
-const gameHeight = 10;
-const gameWidth = 40;
-
 // # of entities (monsters / treasure) is based upon window size
 const entityList = [];
-let numEntities = (gameHeight * gameWidth) / 10;
+let numEntities = (gameHeight() * gameWidth()) / 10;
 
 // Current dungeon level
 let dungeonLevel = 1;
@@ -57,8 +53,8 @@ let dungeonLevel = 1;
 // const ring = `\u{1F6DF}`;                   // The life preserver
 // const rescued = ship + ring + swimmer;      // Combination of all 3
 
-const randY = () => randomInt(gameHeight);
-const randX = () => randomInt(gameWidth);
+const randY = () => randomInt(gameHeight());
+const randX = () => randomInt(gameWidth());
 
 //===============================================================
 // compareObjects()
@@ -141,8 +137,8 @@ function switchBuffer(buffer = -1) {
     div.style.display = "none";
 
     // Erase the text of the offscreen and hover buffer
-    for (let row = 0; row < gameHeight; row++)
-        for (let col = 0; col < gameWidth; col++) {
+    for (let row = 0; row < gameHeight(); row++)
+        for (let col = 0; col < gameWidth(); col++) {
             changeHTMLCellText(offScreenBuffer, row, col, '');
 
             // Remove all existing CSS hover styles
@@ -810,8 +806,8 @@ function drawEntityFromPlayerPov(entity) {
 function drawBoard() {
 
     // Draw the game map
-    for (let row = 0; row < gameHeight; row++)
-        for (let col = 0; col < gameWidth; col++) {
+    for (let row = 0; row < gameHeight(); row++)
+        for (let col = 0; col < gameWidth(); col++) {
             let e = getEntityAtCell(row, col);
 
             // If there is no entity there, draw a blank spot
@@ -867,8 +863,8 @@ function distanceBetweenEntities(entity1, entity2) {
 function updatePossibleTileActions() {
 
     // Iterate over each cell on the game map
-    for (let y = 0; y < gameHeight; y++) {
-        for (let x = 0; x < gameWidth; x++) {
+    for (let y = 0; y < gameHeight(); y++) {
+        for (let x = 0; x < gameWidth(); x++) {
 
             let distanceFromPlayer   = distanceBetween(x, y, playerCharacter().X, playerCharacter().Y);
             let squareInSightRange   = distanceFromPlayer < playerCharacter().currentSightRange;
@@ -1124,14 +1120,14 @@ function initLevel() {
 
             // Right column
             case 1:
-                assignEntitySafeXY(playerCharacter(), gameWidth - 1, -1);
+                assignEntitySafeXY(playerCharacter(), gameWidth() - 1, -1);
                 console.log(`Player at right column`); 
                 validPlayerXY = true;
                 break;
 
             // Bottom row
             case 2:
-                assignEntitySafeXY(playerCharacter(), gameHeight - 1, -1);
+                assignEntitySafeXY(playerCharacter(), gameHeight() - 1, -1);
                 console.log(`Player at bottom row`);
                 validPlayerXY = true; 
                 break;
@@ -1189,7 +1185,7 @@ function createHTMLBoard() {
         bufferDiv.style.display = (buffer) ? "none" : "visible";
         
         // Make one div per board square
-        for (let Y = 0; Y < gameHeight; Y++) {
+        for (let Y = 0; Y < gameHeight(); Y++) {
 
             // Calulate the name of the Y
             let rowId = "row" + Y;
@@ -1201,7 +1197,7 @@ function createHTMLBoard() {
             colString = ``;
 
             // Make the columns
-            for (let X = 0; X < gameWidth; X++) {
+            for (let X = 0; X < gameWidth(); X++) {
                 colString += '1fr ';
 
                 // 5% of grade
@@ -1776,6 +1772,21 @@ window.requestAnimationFrame(gameLoop);
 // for (let i = 0; i < 100; i++)
 //     a.push(randomIntBetween(20, 21))
 // console.log(a);
+
+var initialTime = new Date();
+
+for (let i = 0; i < 10000; i++)
+    generateUniqueUUID();
+
+var finalTime = new Date();
+
+console.log({
+    days: finalTime.getDay() - initialTime.getDay(),
+    hours: finalTime.getHours() - initialTime.getHours(),
+    minutes: finalTime.getMinutes() - initialTime.getMinutes(),
+    seconds: finalTime.getSeconds() - initialTime.getSeconds(),
+    milliseconds: finalTime.getMilliseconds() - initialTime.getMilliseconds(),
+});
 
 // We never get here
 console.log(`goodbye world from sba316`);

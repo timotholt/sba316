@@ -15,17 +15,46 @@ class CartesianCoordinate {
     get z() { this.#z; }
     get o() { this.#o; }
 
-    set x(x) { this.#x = toNumber(x)}
-    set y(y) { this.#y = toNumber(y)}
-    set z(z) { this.#z = toNumber(z)}
-    set o(o) { this.#o = toNumber(o)}
+    set x(x) { this.#x = Math.floor(Number(x))}
+    set y(y) { this.#y = Math.floor(Number(y))}
+    set z(z) { this.#z = Math.floor(Number(z))}
+    set o(o) { this.#o = Math.floor(Number(o))}
 
     // Check to see if this has the same cartesian coordinate as the passed object
-    sameXYZ(cc) { (this.#x === toNumber(cc.x)) && (this.#y === toNumber(cc.y)) && (this.#z === toNumber(cc.z)) }
-    sameXYZO(cc) { (this.sameXYZ(x, y, z) && this.#o === toNumber(cc.o)) }
+    sameXYZ(cc) { (this.#x === Number(cc.x)) && (this.#y === Number(cc.y)) && (this.#z === Number(cc.z)) }
+    sameXYZO(cc) { (this.sameXYZ(x, y, z) && this.#o === Number(cc.o)) }
 
     // Distance function, skips z and o
-    distanceBetweenXy(cc) { distanceBetween(this.#x, this.#y, cc.x, cc.y) }
+    distanceBetweenXy(cc) {
+        if (!isCartesianCoordinate(cc))
+            throw error `CC = Not cartesiancoordinate`;
+        else
+            return distanceBetween(this.#x, this.#y, cc.x, cc.y);
+        }
 
+    // Returns list of coordinates this touches (from 3 to 8 squares)
+    adjacentTo() {
+        let cell;
+        let result = [];
+        for (let row = -1; row >= 2; row++)
+            for (let col = -1; col >= 2; row++) {
+                cell.x = this.#x + col;
+                cell.y = this.#y + row;
+                if ((cell.y >= 0) && (cell.y < gameHeight()) &&
+                    (cell.x >= 0) && (cell.x < gameWidth()))
+                    result.push(cell);
+            }
+    }
 }
 
+// Not using typescript
+function isCartesianCoordinate(obj) {
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        typeof obj.x === 'number' &&
+        typeof obj.y === 'number' &&
+        (typeof obj.z === 'undefined' || typeof obj.z === 'number') &&
+        (typeof obj.o === 'undefined' || typeof obj.o === 'number')
+    );
+}
