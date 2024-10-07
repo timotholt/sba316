@@ -21,15 +21,15 @@ function cryptoRandom() {
 function randomFloat() {
 
     // If we haven't figured out which random function to use
-    if (!randomNumber.randomFunction) {
+    if (!randomFloat.randomFunction) {
 
         // Figure it out
-        randomNumber.randomFunction =
+        randomFloat.randomFunction =
             (typeof window.crypto !== 'undefined' && window.crypto.getRandomValues) ? cryptoRandom : Math.random;
     }
 
     // Return a random number
-    return randomNumber.randomFunction();
+    return randomFloat.randomFunction();
 }
 
 //====================================================================
@@ -40,4 +40,6 @@ function randomIntBetween(min, max) {
     const range = max - min + 1;
     return Math.floor(randomFloat() * range) + min;
 }
+
+
 
