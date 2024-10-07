@@ -2,11 +2,13 @@
 //===============================================================
 // Take a string such as:
 //
-// "1d6+2"
-// "2d8+3"
+// "1d6 + 2"
+// "2 d 8+3"
 // "100"
 //
-// And returns the appropriate result
+// And returns the appropriate result.
+//
+// Note: Uses randomFloat() function from random.js
 //=================================================================
 
 function rollDice(diceString) {

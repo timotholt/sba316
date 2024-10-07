@@ -114,37 +114,62 @@
 // Monsters:
 // Lesser God (hp: 15d10 + 75, attacks: [{ name: "Divine Wrath", damage: "3d10 + 5" }, { name: "Holy Light", damage: "4d6 + 4" }])
 
+const creatureTable = [
+    { name: "human", stats: { str: "3d6", dex: "3d6", con: "3d6", int: "3d6", wis: "3d6", cha: "3d6" }, body: { head:1, arms: 2, legs: 2, hands: 2, feet: 2, wings: 0, tail: 0, see: true, hear: true, smell: true, taste: true, touch: true  }}, ,
+];
+
+entity
+
+
+const equippedWeapon;
+const availableActions = [];
+
 const itemTable = [
+
+    // Ammo
+    { name: "arrow" },
+    { name: "bolt" },
+    { name: "dart"},
+    { name: "stone" },
+
+    // Ranged weapons
+    { name: "throwing knife",
+        actions: [
+            { range: 10, chance: 100, name: "throws", damage: "1d3", requires: { body: "hand", dex: 9 }}
+        ]
+    }
+
+    // Melee Weapons
     { name: "dagger",
         actions: [
-            { range: 1, chance: 70, name: "swings", damage: "1d4", requires: { body: "hand", strength: 4 }},
-            { range: 1, chance: 30, name: "stabs", damage: "1d4+1", requires: { body: "hand", strength: 4 }}],
+            { range: 1, chance: 70, name: "swings", damage: "1d4", requires: { body: "hand", str: 4 }},
+            { range: 1, chance: 30, name: "stabs", damage: "1d4+1", requires: { body: "hand", str: 4 }}],
         abilities: [ 
-            { range: 1, chance: 30, name: "parries", negates: "1d4+1", requires: { body: "hand", strength: 4 }}],
+            { range: 1, chance: 30, name: "parries", negates: "1d4+1", requires: { body: "hand", str: 4 }}],
     },
     { name: "short sword",
         actions: [
-            { range: 1, chance: 70, name: "swings", damage: "1d6", requires: { body: "hand", strength: 6 }},
-            { range: 1, chance: 30, name: "stabs", damage: "1d6+1", requires: { body: "hand", strength: 6 }}], 
+            { range: 1, chance: 70, name: "swings", damage: "1d6", requires: { body: "hand", str: 6 }},
+            { range: 1, chance: 30, name: "stabs", damage: "1d6+1", requires: { body: "hand", str: 6 }}], 
         abilities: [ 
-            { range: 1, chance: 50, name: "parries", negates: "1d6+2", requires: { body: "hand", strength: 6 }}],
+            { range: 1, chance: 50, name: "parries", negates: "1d6+2", requires: { body: "hand", str: 6 }}],
     },
     { name: "long sword",
         actions: [
-            { range: 1, chance: 70, name: "swings", damage: "1d8", requires: { body: "hand", strength: 8 } },
-            { range: 1, chance: 30, name: "stabs", damage: "1d8+2", requires: { body: "hand", strength: 8 }}],
+            { range: 1, chance: 70, name: "swings", damage: "1d8", requires: { body: "hand", str: 8 } },
+            { range: 1, chance: 30, name: "stabs", damage: "1d8+2", requires: { body: "hand", str: 8 }}],
         abilities: [
-            { range: 1, chance: 50, name: "parries", negates: "1d8+2", requires: { body: "hand", strength: 8 }}],
+            { range: 1, chance: 50, name: "parries", negates: "1d8+2", requires: { body: "hand", str: 8 }}],
     },
     { name: "short bow",
         actions: [
-            { range: 1, chance: 100, name: "swings", damage: "1d2-1", requires: { body: "two-hands", strength: 3 }},
-            { range: 100, chance: 100, name: "shoots arrow", damage: "1d6", requires: { body: "two-hands", strength: 6, ammo: "arrows" }}],
+            { range: 1, chance: 100, name: "swings", damage: "1d2-1", requires: { body: "two-hands", str: 3 }},
+            { range: 100, chance: 100, name: "shoots an arrow", damage: "1d6", requires: { body: "two-hands", str: 6, inventory: "arrow" }}],
     },
     { name: "long bow",
         actions: [
-            { range: 1, chance: 100, name: "swings", damage: "1d2", requires: { body: "two-hands", strength: 3 }},
-            { range: 100, chance: 100, name: "shoots arrow", damage: "1d8", requires: { body: "two-hands", strength: 8, ammo: "arrows" }}],
+            { range: 1, chance: 100, name: "swings", damage: "1d2", requires: { body: "two-hands", str: 3 }},
+            { range: 100, chance: 100, name: "shoots an arrow", damage: "1d8", requires: { body: "two-hands", str: 8, inventory: "arrow" }}],
     },
 ];
 
