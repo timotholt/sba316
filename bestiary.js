@@ -156,7 +156,7 @@ const itemTable = [
     },
     { name: "long sword",
         actions: [
-            { range: 1, chance: 70, name: "swings", damage: "1d8", requires: { body: "hand", str: 8 } },
+            { range: 1, chance: 70, name: "swings", damage: "1d8", requires: { body: "hand", str: 8 }},
             { range: 1, chance: 30, name: "stabs", damage: "1d8+2", requires: { body: "hand", str: 8 }}],
         abilities: [
             { range: 1, chance: 50, name: "parries", negates: "1d8+2", requires: { body: "hand", str: 8 }}],
