@@ -60,3 +60,4 @@ function isCartesianCoordinate(obj) {
         (typeof obj.o === 'undefined' || typeof obj.o === 'number')
     );
 }
+

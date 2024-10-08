@@ -6,13 +6,13 @@ const windowHeight = window.innerHeight;
 const windowWidth = window.innerWidth;
 
 // Create audio object for the main music played in the game
-// const rescueMusic = new Audio(`./rescue.mp3`);
-const rescueMusic = new Audio(`./topguntheme.mp3`);
+// const rescueMusic = new Audio(`./audio/rescue.mp3`);
+const rescueMusic = new Audio(`./audio/topguntheme.mp3`);
 const rescueVolume = 0.8;
 rescueMusic.volume = rescueVolume;
 
 // Create audio object for the victory music
-const victoryMusic = new Audio(`./ff14-fanfare.mp3`);
+const victoryMusic = new Audio(`./audio/ff14-fanfare.mp3`);
 const victoryVolume = 1.0;
 victoryMusic.volume = victoryVolume;
 let musicStarted = false;
@@ -21,13 +21,13 @@ let musicStarted = false;
 // Tom Cruise's cues
 //================================================
 
-// const cueManOverboard = new Audio(`./startrescue.mp3`);
+// const cueManOverboard = new Audio(`./audio/startrescue.mp3`);
 const cueManOverboard = new Audio(``);
-const cueManSpotted   = new Audio(`./manspotted.mp3`);
-const cueManLost      = new Audio(`./crashsitelost.mp3`);
-const cueManRescued   = new Audio(`./gooserescued.mp3`);
-const cueMovingAway   = new Audio(`./farsonar.mp3`);
-const cueMovingCloser = new Audio(`./closesonar.mp3`);
+const cueManSpotted   = new Audio(`./audio/manspotted.mp3`);
+const cueManLost      = new Audio(`./audio/crashsitelost.mp3`);
+const cueManRescued   = new Audio(`./audio/gooserescued.mp3`);
+const cueMovingAway   = new Audio(`./audio/farsonar.mp3`);
+const cueMovingCloser = new Audio(`./audio/closesonar.mp3`);
 
 // # of entities (monsters / treasure) is based upon window size
 const entityList = [];
