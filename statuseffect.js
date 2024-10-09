@@ -13,6 +13,42 @@ const typicalStatusEffects = [
 ];
 
 //==================================================================
+// Verify that the effect is valid
+//==================================================================
+
+function isValidEffect(effect) {
+
+    // Get the name of the function that called this function
+    let callingFunc = isValidEffect.caller?.name || "unknown";
+
+    // Check for null or undefined status effect properties
+    const requiredProperties = ["name", "startMessage", "endMessage", "duration"];
+    if (requiredProperties.some(property => effect?.[property] === null || effect?.[property] === undefined)) {
+        console.log(`${callingFunc} was passed a null or undefined status effect property.`);
+        return false;
+    }
+
+    // If status effect isn't a valid object
+    if (typeof effect !== "object" || effect === null) {
+        console.log(`${callingFunc} was passed a effect that isn't a object.`);
+        return false;
+    }
+
+    // Check for other bugs
+    if (effect.name === "" || effect.startMessage === "" || effect.endMessage === "" || effect.duration === "") {
+        console.log(`${callingFunc} was passed a status effect with empty string properties.`);
+        return false;
+    }
+
+    if (typeof effect.duration !== "string" || ! effect.duration.match(/^\d+d\d+$/)) {
+        console.log(`${callingFunc} was passed a status effect with an invalid duration.`);
+        return false;
+    }
+
+    return true;
+}
+
+//==================================================================
 // attachStatusEffectToEntity()
 //
 // Add status effect to entity, taking the duration into account.
@@ -26,18 +62,9 @@ function attachStatusEffectToEntity(entity, statusEffect) {
         return;
     }
 
-    // Check for null or undefined status effect properties
-    if (statusEffect.name === null || statusEffect.name === undefined ||
-        statusEffect.startMessage === null || statusEffect.startMessage === undefined ||
-        statusEffect.endMessage === null || statusEffect.endMessage === undefined ||
-        statusEffect.duration === null || statusEffect.duration === undefined) {
-        console.log("attachStatusEffectToEntity() was passed a null or undefined status effect property.");
-        return;
-    }
-
-    // If status effect isn't a valid object
-    if (typeof statusEffect !== "object") {
-        console.log("Status effect is not an object: " + statusEffect);
+    // Check for valid status effect
+    if (!isValidEffect(statusEffect)) {
+        console.log("attachStatusEffectToEntity() was passed an invalid status effect.");
         return;
     }
 
@@ -73,15 +100,17 @@ function attachStatusEffectToEntity(entity, statusEffect) {
     }
 }
 
-
 //==================================================================
-// applySingleStatusEffect()
+// applySingleEffect()
 //
-// This can be a status effect that is part of entity or attached
-// to another object (such as a ring of fire, etc)
+// This can be a effect that is part of entity or attached
+// to another object (such as a sword, ring of fire, etc).
+//
+// This is the primary mechanism for applying damage to characters,
+// including weapons, wands, rings, swords, etc.
 //==================================================================
 
-function applySingleStatusEffect(entity, statusEffect) {
+function applySingleEffect(entity, effect) {
 
     // Check if the entity exists
     if (entity === null || entity === undefined) {
@@ -89,27 +118,21 @@ function applySingleStatusEffect(entity, statusEffect) {
         return;
     }
 
-    // Check for null or undefined effect
-    if (statusEffect === null || statusEffect === undefined || typeof statusEffect !== 'object') {
-        console.log("applySingleStatusEffect() was passed a null or undefined status type or non-object.");
+    // Check for valid effect
+    if (!isValidEffect(effect)) {
+        console.log("applySingleStatusEffectToEntity() was passed an invalid effect.");
         return;
     }
-
-    // Check for null or undefined statusEffects in entity
-    if (entity.statusEffects === null || entity.statusEffects === undefined) {
-        console.log("applySingleStatusEffect() entity.statusEffects is null or undefined.");
-        return;
-    }
-    debugger;
+    
 
     // Loop through all keys of type effectN and apply the effect
-    for (let key in statusEffect) {
+    for (let key in effect) {
 
         // Find any keys that start with the name 'effect'
         if (key.startsWith("effect")) {
 
             // Get the value of the effect
-            let value = statusEffect[key];
+            let value = effect[key];
 
             // Check if value is null or undefined
             if (value === null || value === undefined) {
@@ -216,7 +239,7 @@ function detachStatusEffectByName(entity, name) {
         return;
     }
 
-    // Check for null or undefined status effect
+    // Check for null or undefined name
     if (name === null || name === undefined || name === '') {
         console.log("detachStatusEffectByType() was passed a null or undefined status type.");
         return;
@@ -302,3 +325,4 @@ function processStatusEffects(entity) {
         }
     }
 }
+
