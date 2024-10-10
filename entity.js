@@ -378,7 +378,11 @@ function createItemTemplates() {
 
     // Disposable thrown weapons
     new Entity("throwing knife", ")", "sharp and dangerous", ENTITY_TYPE_OBJECT, TEMPLATE,
-        { range: 10, chance: 100, name: "throws", damage: "1d3", requires: { body: { weaponslot: 1 }, stat: { dex: 9 }}})
+        {   range: 10, chance: 100, name: "throws",
+            effect: [{damage: "hpDamage=1d3"}],
+            requires: { body: { weaponslot: 1 },
+            stat: { dex: 9 }}
+        })
 
     // Melee Weapons
     new Entity("dagger", ")", "shorter than a sword", ENTITY_TYPE_OBJECT, TEMPLATE, [
