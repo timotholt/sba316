@@ -1,5 +1,5 @@
 //===============================================================
-// rolLDiceString(diceExpression)
+// rollDiceString(diceExpression)
 //
 // Evaluates a simple dice expression (no operators or math functions)
 //
