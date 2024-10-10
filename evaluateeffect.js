@@ -1,80 +1,18 @@
 
 // These are examples of status effects
 const typicalStatusEffects = [
-    { name: "blind", startMessage: "the world turns black", endMessage: "you can see again", effect1: "entity.sightRange=0", duration: "1d4" },
-    { name: "confused", startMessage: "you are confused", endMessage: "you regain your senses", effect1: "entity.randomMovement=1", duration: "1d4" },
-    { name: "frozen", startMessage: "you feel frozen", endMessage: "you can move again", effect1: "entity.actionPoints-=1d4", duration: "1d4" },
-    { name: "petrified", startMessage: "you are petrified", endMessage: "you can move again", effect1: "entity.actonPoints=0", effect2: "acAdjustment=+10", duration: "1d4" },
-    { name: "paralyzed", startMessage: "you are paralyzed", endMessage: "you can move again", effect1: "entity.actionPoints=0", duration: "1d4" },
-    { name: "poisoned", startMessage: "you are poisoned", endMessage: "you can move again", effect1: "entityh.deathTimer-=1", duration: "1d8" },
-    { name: "sleeping", startMessage: "you fall asleep", endMessage: "you can wake up again", effect1: "entity.actionPoints=0", duration: "1d4" },
-    { name: "stunned", startMessage: "you are stunned", endMessage: "you can move again", effect1: "entity.actionPoints=0;", effect2: "acAdjustment=10",duration: "1d4" },
-    { name: "burning", startMessage: "you catch on fire", endMessage: "the fire goes out", effect1: "entit.stat.hp-=1d4", duration: "1d4" },
-    { name: "regeneration", startMessage: "you start healing", endMessage: "you stop healing", effect1: "entit.stat.hp+=1d2", duration: "1d4" }
+    { name: "blind", startMessage: "the world turns black", applyMessage: "", endMessage: "you can see again", effect: "entity.sightRange=0", duration: "1d4" },
+    { name: "confused", startMessage: "you are confused", applyMessage: "", endMessage: "you regain your senses", effect: "entity.randomMovement=1", duration: "1d4" },
+    { name: "frozen", startMessage: "you feel frozen", applyMessage: "", endMessage: "you can move again", effect: "entity.actionPoints-=1d4", duration: "1d4" },
+    { name: "petrified", startMessage: "you are petrified", applyMessage: "", endMessage: "you can move again", effect: "entity.actonPoints=0;acAdjustment=+10", duration: "1d4" },
+    { name: "paralyzed", startMessage: "you are paralyzed", applyMessage: "", endMessage: "you can move again", effect: "entity.actionPoints=0", duration: "1d4" },
+    { name: "poisoned", startMessage: "you are poisoned", applyMessage: "", endMessage: "you can move again", effect: "entity.deathTimer-=1", duration: "1d8" },
+    { name: "sleeping", startMessage: "you fall asleep", applyMessage: "", endMessage: "you can wake up again", effect: "entity.actionPoints=0", duration: "1d4" },
+    { name: "stunned", startMessage: "you are stunned", applyMessage: "", endMessage: "you can move again", effect: "entity.actionPoints=0;acAdjustment=10",duration: "1d4" },
+    { name: "burning", startMessage: "you catch on fire", applyMessage: "", endMessage: "the fire goes out", effect: "entit.stat.hp-=1d4", duration: "1d4" },
+    { name: "regeneration", startMessage: "you start healing", applyMessage: "", endMessage: "you stop healing", effect: "entit.stat.hp+=1d2", duration: "1d4" }
 ];
 
-//===============================================================
-// rolLDiceString(diceExpression)
-//
-// Evaluates a simple dice expression (no operators or math
-// Returns: a string representing the number rolled
-//
-// These dice strings work:
-//
-// "34"
-// "-7"
-// "1d4"
-// "1d6"
-// "2d4"
-// "3d6"
-// "1d100"
-// "1d17" -- dice doesn't have to have any particular number of sides
-//
-// These dice strings are NOT SUPPORTED:
-//
-// 1d4+2
-// 1d2+1d2
-//
-// Note that it uses randomFloat() to generate the dice rolls, which
-// is part of random.js
-//===============================================================
-
-function rollDiceString(s) {
-
-    // If the string is empty or null, return 0
-    if (s == null || s === undefined || s === "")
-        throw new Error("rollDiceString() was passed a null or undefined string.");
-
-    // Remove all whitespace
-    s = s.trim();
-
-    // If the string is just a number, return it
-    if (/^-?\d+$/.test(s)) {
-        return s;
-    }
-
-    // Split the dice string into the number of dice and the number of sides
-    const parts = s.split('d');
-    if (parts.length !== 2) {
-        throw new Error(`Invalid dice string: ${s}`);
-    }
-    const numDice = Number(parts[0]);
-    const numSides = Number(parts[1]);
-
-    // Check for NaN
-    if (isNaN(numDice) || isNaN(numSides)) {
-        throw new Error(`Invalid dice string: ${s}`);
-    }
-
-    // Roll the dice
-    let total = 0;
-    for (let i = 0; i < numDice; i++) {
-        total += Math.floor(randomFloat() * numSides) + 1;
-    }
-
-    // Convert the total back to a string for eval()
-    return total.toString();
-}
 
 //===============================================================
 // evaluateEffect(effectExpression)
@@ -110,6 +48,9 @@ function rollDiceString(s) {
 //
 // Make a dex check or take 1d6 hit point damage
 //  "if (1d20 > entity.stat.dex) { entity.currehtHp -= 1d6 }"
+//
+// 20% chance of changing the target to to a giant
+// "if (1d100 > 20) { copyEntityTemplate("giant", target) }"
 //
 // Explosion
 //  {
@@ -160,39 +101,108 @@ function evaluateEffectExpression(effectExpression) {
 }
 
 //==================================================================
-// Verify that the effect is valid
+// isValidEffect(effect)
+//
+// Returns true if the effect is valid, false otherwise.
+//
+// Effects are an object with the following properties:
+//
+// name:             string - The name of the effect
+// startMessage:     string - The message to display when the effect starts
+// applyMessage:     string - The message to display everytime the effect is applied
+// endMessage:       string - The message to display when the effect ends
+// duration:         string/number - The duration of the effect
+// effectExpression: string - The effect as a Javascript string
 //==================================================================
+
+// TODO: In actual practice, this might be too restrictive.  Maybe no applyMessage?
 
 function isValidEffect(effect) {
 
     // Get the name of the function that called this function
     let callingFunc = isValidEffect.caller?.name || "unknown";
 
-    // Check for null or undefined status effect properties
-    const requiredProperties = ["name", "startMessage", "endMessage", "duration"];
-    if (requiredProperties.some(property => effect?.[property] === null || effect?.[property] === undefined)) {
-        console.log(`${callingFunc} was passed a null or undefined status effect property.`);
+    // Check if the effect is null or undefined
+    if (effect === null || effect === undefined) {
+        console.log(`${callingFunc} was passed a null or undefined effect.`);
         return false;
     }
+    
 
-    // If status effect isn't a valid object
-    if (typeof effect !== "object" || effect === null) {
+    // Check if the effect is an object
+    if (typeof effect !== "object") {
         console.log(`${callingFunc} was passed a effect that isn't a object.`);
         return false;
     }
 
-    // Check for other bugs
-    if (effect.name === "" || effect.startMessage === "" || effect.endMessage === "" || effect.duration === "") {
-        console.log(`${callingFunc} was passed a status effect with empty string properties.`);
-        return false;
-    }
+    // List of required properties effect object must have
+    const requiredProperties = ["name", "startMessage", "applyMessage", "endMessage", "duration", "effectExpression"];
 
-    if (typeof effect.duration !== "string" || ! effect.duration.match(/^\d+d\d+$/)) {
-        console.log(`${callingFunc} was passed a status effect with an invalid duration.`);
-        return false;
+    // Loop through all the required properties
+    for (let rp of requiredProperties) {
+
+        // Check for null or undefined status or blank sub-properties
+        if (effect[rp] === null || effect[rp] === undefined || effect[rp] === "") {
+            console.log(`${callingFunc} passed a null or undefined status effect property or an empty string.`);
+            return false;
+        }
+
+        // Durations can be a number or a string
+        if (rp === "duration") {
+            if (typeof effect[rp] != "string" && typeof effect[rp] != "number")
+                console.log(`${callingFunc} passed a status effect property that isn't a number or string.`);
+                return false;
+        }
+
+        // Everything else must be a string
+        else if (typeof effect[rp] != "string") {
+            console.log(`${callingFunc} passed a status effect property that isn't a string.`);
+            return false;
+        }
     }
 
     return true;
+}
+
+//==================================================================
+// applySingleEffect()
+//
+// This can be a effect that is part of entity or attached
+// to another object (such as a sword, ring of fire, etc).
+//
+// This is the primary mechanism for applying damage to characters,
+// including weapons, wands, rings, swords, etc.
+//==================================================================
+
+function applySingleEffect(entity, effect) {
+
+    // Check if the entity exists
+    if (entity === null || entity === undefined) {
+        console.log("applySingleStatusEffect() was passed a null or undefined entity.");
+        return;
+    }
+
+    // Check for valid effect
+    if (!isValidEffect(effect)) {
+        console.log("applySingleStatusEffectToEntity() was passed an invalid effect.");
+        return;
+    }
+
+    // If the effect is an array, loop through it
+    if (Array.isArray(effect)) {
+
+        // Loop through the effect array
+        for (let i = 0; i < effect.length; i++) {
+            applySingleEffect(entity, effect[i]);
+        }
+        return;
+    }
+
+    else {
+        // Apply the effect!
+        result = evaluateEffectExpression(effect);
+        console.log(`${entity.name} ${effect.applyMessage}`);
+    }
 }
 
 //==================================================================
@@ -228,16 +238,26 @@ function attachStatusEffectToEntity(entity, statusEffect) {
     // If the status effect is a string
     switch(typeof statusEffect.duration) {
 
-        // It should only be a string, but this makes the code more robust
-        case 'number':
-            entity.statusEffects[n].duration = Number(statusEffect.duration);
+        // Duration should be a string containing a hardcoded Javascript expression for dice rolls 
+        case 'string':
+
+            // Calculate the actual duration of the status effect instead of copying the string
+            let result = parseInt(evaluateEffectExpression(statusEffect.duration));
+
+            // If the parsed string is anything but a number, flag it as an error
+            if (typeof result !== 'number') {
+                console.log(`Invalid status effect duration: ${statusEffect.duration}`);
+                return;
+            }
+
+            // Save the duration
+            entity.statusEffects[n].duration = evaluateEffectExpression(statusEffect.duration);
             message(entity.statusEffects[n].startMessage);
             break;
 
-        // Duration should be a hardcoded string or dice roll
-        case 'string':
-            // Calculate the actual duration of the status effect instead of copying the string
-            entity.statusEffects[n].duration = Number(rollDice(statusEffect.duration));
+        // It should only be a string, but we'll allow numbers as this makes the code more robust
+        case 'number':
+            entity.statusEffects[n].duration = Number(statusEffect.duration);
             message(entity.statusEffects[n].startMessage);
             break;
 
@@ -247,131 +267,6 @@ function attachStatusEffectToEntity(entity, statusEffect) {
     }
 }
 
-//==================================================================
-// applySingleEffect()
-//
-// This can be a effect that is part of entity or attached
-// to another object (such as a sword, ring of fire, etc).
-//
-// This is the primary mechanism for applying damage to characters,
-// including weapons, wands, rings, swords, etc.
-//==================================================================
-
-function applySingleEffect(entity, effect) {
-
-    // Check if the entity exists
-    if (entity === null || entity === undefined) {
-        console.log("applySingleStatusEffect() was passed a null or undefined entity.");
-        return;
-    }
-
-    // Check for valid effect
-    if (!isValidEffect(effect)) {
-        console.log("applySingleStatusEffectToEntity() was passed an invalid effect.");
-        return;
-    }
-    
-
-    // Loop through all keys of type effectN and apply the effect
-    for (let key in effect) {
-
-        // Find any keys that start with the name 'effect'
-        if (key.startsWith("effect")) {
-
-            // Get the value of the effect
-            let value = effect[key];
-
-            // Check if value is null or undefined
-            if (value === null || value === undefined) {
-                console.log("applySingleStatusEffect() value is null or undefined.");
-                continue;
-            }
-            console.log(value);
-
-            // Find the key it will affect in the value
-            let effectKey = Object.keys(value)[0];
-            let effect = value[effectKey];
-
-            // Check if effectKey is null or undefined
-            if (effectKey === null || effectKey === undefined) {
-                console.log("Invalid effect key: " + effectKey);
-                continue;
-            }
-
-            // Check if effectKey is a string
-            if (typeof effectKey !== 'string') {
-                console.log("Invalid effect key: " + effectKey);
-                continue;
-            }
-
-            // Check if effectKey exists in entity
-            if (entity[effectKey] === null || entity[effectKey] === undefined) {
-                console.log("Effect key does not exist in entity: " + effectKey);
-                continue;
-            }
-
-            //==============================================================
-            // Effect string format:
-            //   [n%][key][operator][dicestring]
-            //   - n: optional percentage (0-100) indicating chance of effect occurring
-            //   - key: entity key to be modified
-            //   - operator: one of +=, -=, or =, indicating operation to perform on key
-            //   - dicestring: string to be passed to dice function for random value generation
-            //
-            // Example: 20%:stats.str+=1d6
-            //          50%:hp-=2d4
-            //          stats.dex+=1d8
-            //          100%:ac-=1
-            //          25%:stats.str=3d6+2
-            //          stats.int+=1
-            //          90%:spd-=1d2
-            //==============================================================
-
-            // Check if the effect is a string
-            if (typeof effect !== 'string') {
-                console.log(`Invalid effect: ${effect}`);
-                continue;
-            }
-
-            // Parse the effect string, remove the whitespace
-            const match = effect.match(/(\d+%:?)?(.+?)([+=-])(.*)/).trim();
-
-            if (match) {
-                const percentage = (match[1] ? parseInt(match[1]) : 100); // default to 100% if not specified
-                const key = match[2];
-                const operator = match[3];
-                const diceroll = match[4];
-
-                console.log(percentage, key, operator, diceroll);
-
-                // Check if percentage is from 1-99
-                if (percentage < 1 || percentage > 99) {
-
-                    // Roll the dice
-                    let roll = rollDice("1d100");
-
-                    // Check if the roll is greater than the percentage
-                    if (roll > Number(percentage))
-                        continue;
-                }
-
-                // Check if operator is valid (+=, -=, or =)
-                if (operator === "-=") {
-                    entity[key] -= Number(rollDice(diceroll));
-                }
-                else if (operator === "+=") {
-                    entity[key] += Number(rollDice(diceroll));
-                }
-                else if (operator === "=") {
-                    entity[key] = Number(rollDice(diceroll));
-                }
-                else {
-                    console.log(`Invalid operator: ${operator} in ${effect}`);
-                }
-            }
-        }
-    }
-}
 //==================================================================
 // detachStatusEffectByName()
 //
