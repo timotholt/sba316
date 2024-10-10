@@ -14,10 +14,10 @@ class Location {
     #entity;
     #cartesianCoordinate;
 
-    constructor (location) {
+    constructor (entityOrLocation) {
 
         // Check for null pointer references
-        if (location === null) {
+        if (entityOrLocation === null) {
             throw new Error("Invalid location passed to Location constructor");
         }
 
@@ -25,31 +25,30 @@ class Location {
         this.#cartesianCoordinate = new CartesianCoordinate(-1, -1, -1, -1);
 
         // If location is an entity, use its location
-        if (location instanceof Entity) {
+        if (entityOrLocation instanceof Entity) {
 
             // Check for null pointer references
-            if (location.location === null) {
+            if (entityOrLocation.location === null) {
                 throw new Error("Entity passed to Location constructor has null location");
             }
 
-            // Set entityCarriedBy
-            this.#entity = location;
-
+            // Set entity
+            this.#entity = entityOrLocation;
         }
 
         // If location is a cartesian coordinate, use it
-        else if (location instanceof CartesianCoordinate) {
+        else if (entityOrLocation instanceof CartesianCoordinate) {
 
             // Set entityCarriedBy
             this.#entity = null;
 
             // Check for null pointer references
-            if (location === null) {
+            if (entityOrLocation === null) {
                 throw new Error("CartesianCoordinate passed to Location constructor is null");
             }
 
             // Copy the address
-            this.#cartesianCoordinate = location;
+            this.#cartesianCoordinate = entityOrLocation.location;
 
         }
 
