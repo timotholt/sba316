@@ -1,3 +1,6 @@
+//
+import { generateUniqueUuid } from './uuid.js'
+
 // Template vs instance
 const TEMPLATE = Symbol('template')
 const INSTANCE = Symbol('instance')
@@ -15,23 +18,9 @@ const SIZE_SMALL = Symbol('small')
 const SIZE_MEDIUM = Symbol('medium')
 const SIZE_LARGE = Symbol('large')
 
-
-
 // List of all entity templates in the game
 const entityTemplateList = [];
 const entityList = [];
-
-// Typical body parts
-// 
-// head/torso/hands/legs/feet are for wearing armor
-//
-// weaponslots
-//
-// const bodyParts = { heads: 1, torsos: 1, hands: 2, legs: 2, feet: 2, wings: 0, tail: 0, weaponslots: 2 }
-
-
-
-
 
 const stats = {
     level: 1,
