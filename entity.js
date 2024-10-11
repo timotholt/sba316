@@ -1,5 +1,5 @@
 //
-import { generateUniqueUuid } from './uuid.js'
+import Uuid from './uuid.js'
 
 // Template vs instance
 const TEMPLATE = Symbol('template')
@@ -50,7 +50,6 @@ const humanoidSlots = [
 class Entity {
     // Future networking stuff
     #uuid;
-    #creationTime;
     #modifyTime;
     #valid;
 
@@ -165,7 +164,7 @@ class Entity {
     constructor(name, icon, description, type, template = TEMPLATE, location = undefined, abilities = [], size = SIZE_TYPE_SMALL, hp = 1, statusEffects = {}, slots = {}, stats = {} ) {
 
         // Generate network stuff
-        this.uuid = generateUniqueUUID();
+        this.#uuid = new Uuid;
         this.creationTime = Date.now();
         // Dont need modify date cause it will change below
 
