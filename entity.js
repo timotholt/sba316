@@ -1,5 +1,6 @@
 //
 import Uuid from './uuid.js'
+import Location from './location.js'
 
 // Template vs instance
 const TEMPLATE = Symbol('template')
@@ -48,124 +49,34 @@ const humanoidSlots = [
 
 // Most primitive data structure of an entity in the game
 class Entity {
-    // Future networking stuff
-    #uuid;
-    #modifyTime;
-    #valid;
 
-    // Game stuff
-    #template;
-    #name;
-    #type;
-    #icon;
-    #description;
+    //==========================================
+    // Variables for status effects
+    //==========================================
 
-    // Object stuff
-    #location;
-    #spotted;
-    #alwaysVisible;
-    #hp;
-    #maxHp;
-    #size;
-    #stats;
-    #abilities;
+    // Sleeping:  currentAcdtionPoints = 0 & currentSightRange = 0
+    // Poisoned:  currentDeathTimer < maxDeathTimer 
+    // Frozen:    currentActionPoints = 0 & currentAcAdjustment = +10
+    // Paralyzed: currentActionPoints = 0
+    // Dizzy:     randomMovement = true
+    // Confused:  randomMovement = true && confusedVisuals = true
+    // Burning:   losing hp every turn
+    // Blindness: currentSightRange = 0
 
-    #statusEffects = [];
 
-    //===========================================
-    // Status effects
-    //
-    // sleeping, dead, burning, poisoned, frozen, dizzy, hungry, satiated,  
-    //   in the form of status: value
-    //===========================================
+    #alive;                                             // Used can be not-alive and action points (robots)
 
-    // Blindness - affects #sightRange
-    // isBlind: 2 = blind for 2 turns (0 becomes unblind)
-    // isBlindEffect = "#sightRange=0"
 
-    #isBlind;
-    #isBlindEffect;
 
-    get isBlind() { return this.#isBlind }
-    setBlind = (turns, effect) => { this.#isBlindEffect = effect; return (this.#isBlind = turns > 0) }
 
-    // Frozen - affects #actionPoints
-    // isFrozen: 2 = frozen for 2 turns (0 becomes unfrozen)
-    // isFrozenEffect: "actionPoints=0"
 
-    #isFrozen;
-    #isFrozenEffect;
-    get isFrozen() { this.#isFrozen }
-    setFrozen = (turns, effect) => { this.#isFrozenEffect = effect; return (this.#isFrozen = turns > 0) }
-
-    // Confusion - affects #movementDirection
-    // isConfused: 2 = dizzy for 2 turns (0 becomes undizzy)
-    // isConfused: "movementdirection=random()"
-
-    #isConfused;
-    #isConfusedEffect;
-    get isConfused() { return this.#isConfused }
-    setConfused = (turns, effect) => { this.#isConfusedEffect = effect; return (this.#isConfused = turns > 0) }
-
-    // Burning - affects hit points, inventory scrolls
-    // burning: 2 = burning for 2 turns (0 becomes not burning)
-    // burningeffect: "maxhp=1d2"
-
-    #isBurning;
-    #isBurningEffect;
-    get isBurning() { return this.#isBurning }
-    setBurning = (turns, effect) => { this.#isBurningEffect = effect; return (this.#isBurning = turns > 0) }
-
-    // Sleeping - affects #sightrange and #actionpoints 
-    // sleeping: 2 = sleeping for 2 turns (0 becomes not sleeping)
-    // sleepingeffect = "actionpoints=0;currentVisibiity=0"
-
-    #isSleeping;
-    #isSleepingEffect;
-    get isSleeping() { return this.#isSleeping }
-    setSleeping = (turns, effect) => { this.#isSleepingEffect = effect; return (this.#isSleeping = turns > 0) }
-
-    // Poisoned - affects #hitpoints
-    // poisoned: 2 = poisoned for 2 turns (0 becomes unpoisoned unless killed)
-    // poisonedeffect = "hp=1d3"
-
-    #isPoisoned;
-    #isPoisonedEffect;
-    get isPoisoned() { return this.#isPoisoned }
-    setPoisoned = (turns, effect) => { this.#isPoisonedEffect = effect; return (this.#isPoisoned = turns > 0) }
-
-    // Regeneratioon - affects #hitpoints
-    // regenerating: 2 = regenerating for 2 turns ()
-    #isRegeneratingHp;
-    #isRegeneratingHpEffect;
-    get isRegeneratingHp() { return this.#isRegeneratingHp }
-    setRegeneratingHp = (turns, effect) => { this.#isRegeneratingHpEffect = effect; return (this.#isRegeneratingHp = turns > 0) }
-
-    // Special status:
-    //
-    // dead is special - value is the turn it was killed.  when a creature is killed, it is 
-    // immediately marked fresh for 5 turns.
-    #isDead;
-    #isDeadEffect;
-
-    // fresh: 5 = fresh for 5 turns (0 becomes tainted)
-    // tainted: 5 = tainted for 5 turns (0 becomes rotten)
-    // spoiled: 5 = if eaten will make you very sick
-    // rotten: 
-
-    #isRotting;
-    #isRottingEffect;
-    // get isRotting() { }
-    // set isRotting(turns,) {}
-
-    // Sight range
-    #sightRange;
 
     constructor(name, icon, description, type, template = TEMPLATE, location = undefined, abilities = [], size = SIZE_TYPE_SMALL, hp = 1, statusEffects = {}, slots = {}, stats = {} ) {
 
         // Generate network stuff
-        this.#uuid = new Uuid;
-        this.creationTime = Date.now();
+        this.#uuid = new Uuid;                          // Includes a date
+        this.valid = true;
+
         // Dont need modify date cause it will change below
 
         // Use the setters() to set these values
@@ -174,12 +85,10 @@ class Entity {
         this.type = type;
         this.description = description;
         this.icon = icon;
+        this.location = new Location();
 
-        this.location = location;
-        this.valid = true;
         this.spotted = false;
         this.alwaysVisible = false;
-        this.hp = hp;
 
         this.size = size;
         this.stats = stats;
@@ -196,73 +105,149 @@ class Entity {
     }
 
     // Netork getters
-    get uuid() { return this.#uuid; }
-    get creationTime() { return this.#creationTime }
-    get modifiedTime() { return this.#modifyTime }
-    get valid() { return this.#valid; }
+    #uuid;
+    get uuid()          { return this.#uuid.uuid }
+    get creationTime()  { return this.#uuid.creationTime }
 
-    // Game getters
-    get template() { return this.#template }
+    #valid;
+    get valid()         { return this.#valid }
+    set valid(bool)     { return this.#valid = Boolean(bool) }
 
+    #modifyTime;
+    get modifiedTime()  { return this.#modifyTime }
+    set modifiedTime()  { return this.#modifyTime = Date.now() }
+
+    #template;
+    get template()      { return this.#template }
+    set template(value) { if (value !== TEMPLATE && value !== INSTANCE) { throw new Error('Invalid template type') } this.#template = value; }
+
+    // TODO
     // If entity is dead, return corpose + name 
-    get name() { return this.#name }
-    name(cooked) { (this.isDead() && cooked) ? `corpse of ${this.#name}` : this.#name }
+    #name;
+    get name()          { return this.#name }
+    set name(s)         { return this.#name = String(s) }
+    name(cooked)        { (this.isDead() && cooked) ? `corpse of ${this.#name}` : this.#name }
 
-    get type() { return this.#type; }
+    #icon;
+    get icon()          { return this.#icon }
+    set icon(s)         { return this.#icon = String(s)}
 
-    get description() { return this.#description; }
+    #description;
+    get description()   { return this.#description }
+    set description(s)  { return this.#description = String(s) }
 
-    // If entity is dead, return % as icon (food)
-    get icon() { return (this.hp < 0) ? "\%" : this.#icon }
+    // Entity type
+    #type;
+    get type()          { return this.#type; }
+    set type(t)         { if (typeof t !== 'symbol') { throw new Error('Invalid entity type')} else { this.#type = type }}
 
-    // Object getters
-    get location() { return this.#location; }
-    get spotted() { return this.#spotted }
-    get alwaysVisible() { return this.#alwaysVisible }
-    get hp() { return this.#hp; }
-    get maxHp() { return this.#maxHp }
-    get size() { return this.#size; }
-    get sightRange() { return this.#sightRange }
-    get stats() { return this.#stats; }
-    get abilities() { return this.#abilities; }
+    // Entity location
+    #location;
+    get location()      { return this.#location; }
+    set location(loc)   { return this.#location = loc }
 
-    // Network setters
-    set valid(bool) { this.#valid = Boolean(bool) }
+    #size;
+    get size()          { return this.#size; }
+    set size(s)         { if (typeof s !== 'symbol') { throw new Error('Invalid entity size')} else { this.#size = s }}
 
-    // Game setters
-    set template(template) {
-        this.#template = (template === TEMPLATE || template === INSTANCE) ? template : console.log(`STOP`);
-        }
-    set name(s) { return this.#name = String(s) }
-    set type(type) {
-        if (typeof type !== 'symbol') { throw new Error('Invalid entity type') }
-        this.#type = type;
-    }
-    set description(s) { return this.#description = String(s) }
-    set icon(s) { return this.#icon = String(s)}
+    #maxSize;
+    get maxSize()       { return this.#maxSize }
+    set maxSize(s)      { if (typeof s !== 'symbol') { throw new Error('Invalid entity maxSize')} else { this.#maxSize = s }}
 
-    set location(cc) { 
-        this.#location = new CartesianCoordinate;
-        this.#location.x = location.x;
-        this.#location.y = location.y;
-        this.#location.z = location.z;
-        this.#location.o = location.o;
-    }
-    set spotted(s) {
-        // Large objects and "always visible" objects have a special feature: Once seen, always seen
-        this.#spotted = ((this.#size === SIZE_TYPE_LARGE) || (this.#alwaysVisible)) ? true : Boolean(s)
-    }
-    set alwaysVisible(b) { this.#alwaysVisible = Boolean(b) }
+    // Hitpoints and size
+    #hp;
+    get hp()            { return this.#hp }
+    set hp(n)           { return this.#hp = n }
 
-    set hp(n) { this.#hp = Number(n); }
-    set maxHp(n) { this.#maxHp = Number(n)}
-    set size(s) {
-        if (typeof s !== 'symbol') { throw new Error('Invalid entity size') }
-        this.#size = s;
-    }
-    set stats(s) { this.#stats = stats }
-    set abilities(a) { this.#abilities = abilities }
-    set sightRange(n) { return this.#sightRange = Number(n) }
+    #maxHp;
+    get maxHp()         { return this.#maxHp }
+    set maxHp(n)        { return this.#maxHp = n }
+
+    // If entity is seen
+    #spotted;
+    get spotted()           { return this.#spotted }
+    set spotted(s)          { this.#spotted = ((this.#size === SIZE_LARGE) || (this.#alwaysVisible)) ? true : Boolean(s) }
+    #alwaysVisible;
+    get alwaysVisible()     { return this.#alwaysVisible } 
+    set alwaysVisible(b)    { this.#alwaysVisible = Boolean(b) }
+
+    // What entity can see
+    #sightRange;
+    get sightRange()        { return this.#sightRange }
+    set sightRange(n)       { return this.#sightRange = Number(n) }
+    #maxSightRange;
+    get maxSightRange()     { return this.#maxSightRange }
+    set maxSightRange(n)    { return this.#maxSightRange = Number(n) }
+
+    // Status effect stuff
+    #confusedMovement;
+    get confusedMovement()  { return this.#confusedMovement }
+    set confusedMovement(b) { return this.#confusedMovement = b }
+
+    #confusedVisuals;
+    get confusedVisuals()   { return this.#confusedVisuals }
+    set confusedVisuals(b)  { return this.#confusedVisuals = b }
+
+    #actionPoints;
+    get actionPoints()      { return this.#actionPoints }
+    set actionPoints(n)     { return this.#actionPoints = n }
+
+    #maxActionPoints;
+    get maxActionPoints()   { return this.#maxActionPoints }
+    set maxActionPoints(n)  { return this.#maxActionPoints = n }
+
+    #acAdjustment;
+    get acAdjustment()      { return this.#acAdjustment } 
+    set acAdjustment()      { return this.#acAdjustment = n} 
+
+    #maxAcAdjustment;
+    get maxAcAdjustment()   { return this.#maxAcAdjustment } 
+    set maxAcAdjustment()   { return this.#maxAcAdjustment = n } 
+
+    #healHpPerTurn;
+    get healHpPerTurn()     { return this.#healHpPerTurn }
+    set healHpPerTurn(n)    { return this.#healHpPerTurn = n }
+
+    // Hunger level: 2000 or more Oversatiated[note 1]
+    //               1000 to 1999	Satiated
+    //                150 to 999    Not hungry[note 2]
+    //                 50 to 149    Hungry
+    //                  0 to 49     Weak
+    //          Below zero          Fainting
+    //      Below minimum	        Starved to death [note 3]
+    #hungerLevel;
+    get hungerLevel()       { return this.#hungerLevel }
+    set hungerLevel(n)      { return this.#hungerLevel = n }
+
+    #deathTimer;
+    get deathTimer()        { return this.#deathTimer }
+    set deathTimer(n)       { return this.#deathTimer = n }
+
+    #maxDeathTimer;
+    get maxDeathTimer()     { return this.#maxDeathTimer }
+    set maxDeathTimer()     { return this.#maxDeathTimer = n }
+
+    // fresh:   100 = fresh for 5 turns (0 becomes tainted)
+    // tainted:  75 = tainted for 5 turns (0 becomes rotten)
+    // spoiled:  50 = if eaten will make you very sick
+    // rotten:   25 = if eaten will start your death timer
+    #rotLevel;
+    get rotLevel()      { return this.#rottingLevel }
+    set rotLevel(n)     { return this.#rottingLevel = n }
+
+    // Status (str, dex, con, int, wis, cha)
+    #stats;
+    get stats()             { return this.#stats; }
+    set stats(s)            { return this.#stats = stats }
+
+    #abilities;
+    get abilities()         { return this.#abilities; }
+    set abilities(a)        { this.#abilities = abilities }
+
+    #statusEffects = [];
+    get statusEffects()     { return this.#statusEffects }
+    set statusEffects(s)    { return this.#statusEffects = s }
+
 
     // Additional methods
     interact() {

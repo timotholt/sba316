@@ -8,6 +8,8 @@
 // or an entity on the ground.
 //========================================================================
 
+export default Location;
+
 class Location {
 
     // Private members

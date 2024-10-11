@@ -1,6 +1,6 @@
 export default Uuid;
 
-export class Uuid {
+class Uuid {
 
     #uuid;
     #creationTime;
